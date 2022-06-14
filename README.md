@@ -7,7 +7,7 @@ Simple CMS for portfolios - second version.
 - [ ] Components:
   - [ ] Header
   - [ ] Footer
-  - [ ] Navigation bar
+  - [x] Navigation bar
   - [ ] Page
   - [ ] Paragraph (text)
   - [ ] Image (with caption)
@@ -23,6 +23,11 @@ Simple CMS for portfolios - second version.
   - [ ] Accordion
   - [ ] Tabs (with content)
 - [ ] Fetching components from database (read-only)
+  - API endpoints:
+    - [ ] GET /api/pages/?lang={lang}
+    - [ ] GET /api/pages/{id}/?lang={lang}
+    - [ ] GET /api/pages/{id}/components/?lang={lang}
+    - [ ] GET /api/pages/{id}/components/{id}/?lang={lang}
 - [ ] Adding components to database, editing them (read-write)
 
 ## Installation

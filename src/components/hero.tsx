@@ -1,9 +1,13 @@
-const data = {
-    title: 'Title',
-    subtitle: 'Subtitle',
-    image: 'https://images.unsplash.com/photo-1551434678-e076c223a692?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2850&q=80'
+export type HeroProps = {
+    id: string,
+    type: "hero",
+    data: {
+        title: string,
+        subtitle: string,
+        image: string
+    }
 }
-export default function Hero() {
+export default function Hero(Props: HeroProps) {
     return (
         <div className="relative bg-white overflow-hidden">
             <div className="max-w-7xl mx-auto">
@@ -20,10 +24,10 @@ export default function Hero() {
 <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div className="sm:text-center lg:text-left py-10">
         <h1 className="text-4xl tracking-tight font-bold text-gray-900 sm:text-5xl md:text-6xl">
-            <span className="block xl:inline">{data.title}</span>
+            <span className="block xl:inline">{Props.data.title}</span>
         </h1>
         <p className="mt-3 text-base text-gray-500 sm:mt-5 sm:text-lg sm:max-w-xl sm:mx-auto md:mt-5 md:text-xl lg:mx-0 italic">
-            {data.subtitle}
+            {Props.data.subtitle}
         </p>
         <div className="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
 
@@ -35,7 +39,7 @@ export default function Hero() {
 <div className="lg:absolute lg:inset-y-0 lg:right-0 lg:w-1/2">
     <img
         className="h-56 w-full object-cover sm:h-72 md:h-96 lg:w-full lg:h-full"
-        src={data.image}
+        src={Props.data.image}
         alt=""
     />
 </div>

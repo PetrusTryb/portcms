@@ -1,31 +1,63 @@
 import React from 'react';
-import logo from './logo.svg';
-import Navbar from "./components/navbar";
-import Hero from "./components/hero";
 import './App.css';
+import Component, {ComponentProps} from "./components/component";
 
-const preferredLanguage = navigator.language.split('-')[0];
-console.log(preferredLanguage)
+type pageData = {
+    id: string,
+    meta: {
+        title: string,
+        subtitle: string,
+    },
+    components: Array<ComponentProps[keyof ComponentProps]>
+}
+function fetchData() {
+    const preferredLanguage = navigator.language.split('-')[0];
+    console.log(preferredLanguage)
+    const data: pageData = {
+        id: "1",
+        meta: {
+            title: "Hello World",
+            subtitle: "This is a subtitle"
+        },
+        components: [
+            {
+                id: "1",
+                type: "navbar",
+                data: {
+                    logo: "https://via.placeholder.com/150",
+                    smallLogo: "https://via.placeholder.com/50",
+                    pages: [
+                        {
+                            id: "1",
+                            name: "Home",
+                            url: "/"
+                        },
+                        {
+                            id: "2",
+                            name: "About",
+                            url: "/about"
+                        },
+                        {
+                            id: "3",
+                            name: "Contact",
+                            url: "/contact"
+                        }
+                    ]
+                }
+            }
+        ]
+    }
+    //TODO: fetch data from API
+    return data
+}
 
 function App() {
+    let data = fetchData();
   return (
     <div className="App">
-      <Navbar></Navbar>
-        <Hero></Hero>
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        {data.components.map((component) => (
+            <Component key={component.id} {...component} />
+        ))}
     </div>
   );
 }

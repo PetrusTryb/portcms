@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "portCMS",
+  "name": "Simple CMS for portfolios",
   "icons": [
     {
       "src": "favicon.ico",

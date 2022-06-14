@@ -5,7 +5,7 @@ Simple CMS for portfolios - second version.
 ## Features (roadmap)
 - [x] Basic structure
 - [ ] Components:
-  - [ ] Header
+  - [x] Header
   - [ ] Footer
   - [x] Navigation bar
   - [ ] Page

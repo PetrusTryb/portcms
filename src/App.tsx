@@ -44,6 +44,15 @@ function fetchData() {
                         }
                     ]
                 }
+            },
+            {
+                id: "2",
+                type: "hero",
+                data: {
+                    title: "Hello World",
+                    subtitle: "This is a subtitle",
+                    image: "https://via.placeholder.com/500",
+                }
             }
         ]
     }

@@ -9,16 +9,9 @@ Simple CMS for portfolios - second version.
   - [ ] Footer
   - [x] Navigation bar
   - [ ] Page
-  - [ ] Paragraph (text)
-  - [ ] Image (with caption)
-  - [ ] Button (link)
-  - [ ] List (ordered or unordered)
+  - [ ] Paragraph (advanced editor)
   - [ ] Card (with image)
   - [ ] Form
-  - [ ] Table
-  - [ ] Code (with syntax highlighting)
-  - [ ] Video
-  - [ ] Map
   - [ ] Carousel
   - [ ] Accordion
   - [ ] Tabs (with content)
@@ -29,6 +22,26 @@ Simple CMS for portfolios - second version.
     - [ ] GET /api/pages/{id}/components/?lang={lang}
     - [ ] GET /api/pages/{id}/components/{id}/?lang={lang}
 - [ ] Adding components to database, editing them (read-write)
+    - API endpoints:
+        - [ ] PUT /api/pages/
+        - [ ] PATCH /api/pages/{id}
+        - [ ] DELETE /api/pages/{id}
+        - [ ] PUT /api/pages/{id}/components/
+        - [ ] PATCH /api/pages/{id}/components/{id}
+        - [ ] DELETE /api/pages/{id}/components/{id}
+- [ ] Quick installation
+    - [ ] Welcome screen
+    - [ ] Automatic installation
+      - API endpoints:
+        - [ ] POST /api/install
+- [ ] Dashboard
+  - [ ] Page list
+  - [ ] Page editor
+  - [ ] Component editor
+  - [ ] Settings
+  - [ ] Logs
+  - [ ] Help
+  - [ ] About
 
 ## Installation
 1. Clone the repository

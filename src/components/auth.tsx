@@ -1,4 +1,5 @@
-import { LockClosedIcon } from '@heroicons/react/solid'
+import { LockClosedIcon, ExclamationIcon } from '@heroicons/react/solid'
+import React, {useState} from "react";
 export type AuthProps = {
     id: string,
     type: "auth",
@@ -12,6 +13,42 @@ export type AuthProps = {
     }
 }
 export default function Auth(Props: AuthProps) {
+    let [authError,setAuthError] = useState<string>("");
+    let submit = (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        let form = e.currentTarget;
+        let formData = new FormData(form);
+        let data = {
+            email: formData.get("email") as string,
+            username: formData.get("username") as string,
+            password: formData.get("password") as string,
+            mode: Props.data.mode,
+        }
+        fetch("/api/auth", {
+            method: "POST",
+            body: JSON.stringify(data),
+            headers: {
+                "Content-Type": "application/json"
+            }
+            }
+        ).then(res => res.json().then(data => {
+            if(data.error){
+                setAuthError(data.error.errorMessage);
+            }
+            else{
+                if(formData.get("remember-me") === "on"){
+                    localStorage.setItem("session", data.id);
+                }
+                else{
+                    sessionStorage.setItem("session", data.id);
+                }
+                window.location.href = "/";
+            }
+        })).catch(err => {
+            console.error(err);
+            setAuthError("An error occurred while trying to authenticate you. Please try again later.");
+        });
+    }
     return (
         <>
             <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-gray-50 dark:bg-gray-700">
@@ -24,7 +61,7 @@ export default function Auth(Props: AuthProps) {
                                 alt="Logo"
                             />
                         )}
-                        <h2 className="mt-6 text-center text-2xl font-extrabold text-gray-900 dark:text-gray-200">{Props.data.title}</h2>
+                        <h2 className="mt-6 text-center text-2xl font-bold text-gray-900 dark:text-gray-200">{Props.data.title}</h2>
                         {Props.data.mode === "register" && !Props.data.disableLogin && (
                         <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
                             Have an account?{' '}
@@ -34,7 +71,7 @@ export default function Auth(Props: AuthProps) {
                         </p>
                         )}
                         {Props.data.mode === "login" && !Props.data.disableRegister && (
-                            <p className="mt-2 text-center text-sm text-gray-600 dark:text-gray-300">
+                            <p className="mt-2 text-center text-sm text-gray-500 dark:text-gray-300">
                                 Don't have an account?{' '}
                                 <a href="/cms/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-300">
                                     Register now!
@@ -42,7 +79,23 @@ export default function Auth(Props: AuthProps) {
                             </p>
                         )}
                     </div>
-                    <form className="mt-8 space-y-6" action="/api/auth" method="POST">
+                    {authError && (
+                    <div className="bg-red-600 rounded-md">
+                        <div className="max-w-7xl mx-auto py-3 px-3 sm:px-6 lg:px-8">
+                            <div className="flex items-center justify-between flex-wrap">
+                                <div className="w-0 flex-1 flex items-center">
+        <span className="flex p-2 rounded-lg bg-red-800">
+            <ExclamationIcon className="h-5 w-5 text-yellow-500"></ExclamationIcon>
+        </span>
+                                    <p className="ml-3 font-medium text-white truncate">
+                                        <span> {authError} </span>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    )}
+                    <form className="mt-8 space-y-6" onSubmit={submit}>
                         <input type="hidden" name="mode" value={Props.data.mode} />
                         <input type="hidden" name="remember" defaultValue="true" />
                         <div className="rounded-md shadow-sm -space-y-px">
@@ -54,13 +107,30 @@ export default function Auth(Props: AuthProps) {
                                     id="email-address"
                                     name="email"
                                     type="email"
-                                    maxLength={100}
+                                    maxLength={50}
                                     autoComplete="email"
                                     required
                                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-200 dark:bg-gray-800 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                     placeholder="Email address"
                                 />
                             </div>
+                            {Props.data.mode === "register" && (
+                            <div>
+                                <label htmlFor="username" className="sr-only">
+                                    Username
+                                </label>
+                                <input
+                                    id="username"
+                                    name="username"
+                                    type="text"
+                                    maxLength={30}
+                                    autoComplete="username"
+                                    required
+                                    className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-200 dark:bg-gray-800 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                                    placeholder="Username"
+                                />
+                            </div>
+                            )}
                             <div>
                                 <label htmlFor="password" className="sr-only">
                                     Password
@@ -69,8 +139,9 @@ export default function Auth(Props: AuthProps) {
                                     id="password"
                                     name="password"
                                     type="password"
-                                    autoComplete="new-password"
+                                    autoComplete={Props.data.mode === "register" ? "new-password" : "current-password"}
                                     minLength={8}
+                                    maxLength={50}
                                     required
                                     className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 dark:text-gray-200 dark:bg-gray-800 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                     placeholder="Password"
@@ -79,6 +150,8 @@ export default function Auth(Props: AuthProps) {
                         </div>
 
                         <div className="flex items-center justify-between">
+                            {Props.data.mode !== "reset" && (
+                                <>
                             <div className="flex items-center">
                                 <input
                                     id="remember-me"
@@ -86,16 +159,19 @@ export default function Auth(Props: AuthProps) {
                                     type="checkbox"
                                     className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
                                 />
-                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+                                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900 dark:text-gray-400">
                                     Remember me
                                 </label>
                             </div>
-
+                                    {!Props.data.disablePasswordReset && (
                             <div className="text-sm">
-                                <a href="#" className="font-medium text-indigo-600 hover:text-indigo-500">
+                                <a href="/cms/reset_password" className="font-medium text-indigo-600 hover:text-indigo-500">
                                     Forgot your password?
                                 </a>
                             </div>
+                                    )}
+                                </>
+                            )}
                         </div>
 
                         <div>
@@ -106,7 +182,9 @@ export default function Auth(Props: AuthProps) {
                 <span className="absolute left-0 inset-y-0 flex items-center pl-3">
                   <LockClosedIcon className="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" aria-hidden="true" />
                 </span>
-                                Sign in
+                                {Props.data.mode === "login" && "Sign in"}
+                                {Props.data.mode === "register" && "Register"}
+                                {Props.data.mode === "reset" && "Reset password"}
                             </button>
                         </div>
                     </form>

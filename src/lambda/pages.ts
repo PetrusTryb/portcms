@@ -1,56 +1,62 @@
 import { Handler } from '@netlify/functions'
 import {MongoClient} from "mongodb";
+import {connectToDatabase} from "./mongoHelper";
 
-const handler: Handler = async (event, context) => {
-    // Installation check - environment variable is set
-    if (process.env.MONGODB_URL === undefined )
-        return {
-            statusCode: 500,
-            body: JSON.stringify({
-                error: {
-                    errorCode: "MONGODB_URL_NOT_SET",
-                    errorMessage: "MONGODB_URL environment variable is not set. Please set it to the correct value."
-                }
-            })
-        }
-    const mongoClient = new MongoClient(process.env.MONGODB_URL, {  });
+const handler: Handler = async (event) => {
+    let mongoClient:MongoClient;
     try {
-        await mongoClient.connect();
-    } catch (error) {
+        mongoClient = await connectToDatabase();
+    }catch{
         return {
             statusCode: 500,
             body: JSON.stringify({
                 error: {
-                    errorCode: "MONGODB_CONNECTION_ERROR",
-                    errorMessage: "Failure to connect to MongoDB. Please check the MONGODB_URL environment variable."
+                    errorCode: 50001,
+                    errorMessage: "Database connection error."
                 }
             })
         }
     }
     const db = mongoClient.db("portCMS");
     // Installation check - database exists
-    if (!(await db.listCollections().toArray()).find(c => c.name === "pages"))
+    if (!(await db.listCollections().toArray()).find(c => c.name === "users")) {
         await mongoClient.close();
         return {
             statusCode: 500,
             body: JSON.stringify({
                 error: {
-                    errorCode: "MONGODB_DATABASE_NOT_FOUND",
+                    errorCode: 50002,
                     errorMessage: "PortCMS is not yet installed."
                 }
             })
         }
+    }
     const pageUrl = event.queryStringParameters?.url;
     if (event.httpMethod === 'GET') {
         const pages = await db.collection('pages').find({"url":pageUrl}).toArray();
         await mongoClient.close();
+        if(pages.length === 0){
+            return {
+                statusCode: 404,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40401,
+                        errorMessage: "Page not found."
+                    }
+                })
+            }
+        }
         return {
             statusCode: 200,
             body: JSON.stringify(pages)
         }
     }
     if (event.httpMethod === 'POST') {
-
+        //TODO
+        /*return {
+            statusCode: 200,
+            body: `Worked: ${instance.value === 1}`
+        }*/
     }
     await mongoClient.close();
     return {

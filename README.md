@@ -29,11 +29,9 @@ Simple CMS for portfolios - second version.
         - [ ] PUT /api/pages/{id}/components/
         - [ ] PATCH /api/pages/{id}/components/{id}
         - [ ] DELETE /api/pages/{id}/components/{id}
-- [ ] Quick installation
-    - [ ] Welcome screen
-    - [ ] Automatic installation
-      - API endpoints:
-        - [ ] POST /api/install
+- [x] Quick installation
+    - [x] Welcome screen
+    - [x] Automatic installation
 - [ ] Dashboard
   - [ ] Page list
   - [ ] Page editor

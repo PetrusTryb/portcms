@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions'
 import {MongoClient} from "mongodb";
-import {connectToDatabase} from "./mongoHelper";
+import {checkSession, connectToDatabase} from "./mongoHelper";
 
 const handler: Handler = async (event) => {
     let mongoClient:MongoClient;
@@ -33,22 +33,46 @@ const handler: Handler = async (event) => {
     }
     const pageUrl = event.queryStringParameters?.url;
     if (event.httpMethod === 'GET') {
-        const pages = await db.collection('pages').find({"url":pageUrl}).toArray();
-        await mongoClient.close();
-        if(pages.length === 0){
-            return {
-                statusCode: 404,
-                body: JSON.stringify({
-                    error: {
-                        errorCode: 40401,
-                        errorMessage: "Page not found."
-                    }
-                })
+        if(pageUrl==="*"){
+            const user = await checkSession(mongoClient, event.headers["session"]);
+            if (!user?.roles.includes("admin")) {
+                await mongoClient.close();
+                return {
+                    statusCode: 403,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40301,
+                            errorMessage: "You have insufficient permissions."
+                        }
+                    })
+                }
             }
-        }
-        return {
-            statusCode: 200,
-            body: JSON.stringify(pages)
+            else {
+                const pages = await db.collection('pages').find().toArray();
+                await mongoClient.close();
+                return {
+                    statusCode: 200,
+                    body: JSON.stringify(pages)
+                }
+            }
+        }else {
+            const pages = await db.collection('pages').find({"url": pageUrl}).toArray();
+            await mongoClient.close();
+            if (pages.length === 0) {
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40401,
+                            errorMessage: "Page not found."
+                        }
+                    })
+                }
+            }
+            return {
+                statusCode: 200,
+                body: JSON.stringify(pages)
+            }
         }
     }
     if (event.httpMethod === 'POST') {

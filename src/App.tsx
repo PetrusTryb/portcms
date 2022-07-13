@@ -7,17 +7,8 @@ type pageData = {
     id: string,
     components: Array<ComponentProps[keyof ComponentProps]>,
     user?: {
-        id: string,
         username: string,
-        email: string,
-        password: string,
-        sessions: Array<{
-            id: string,
-            ip: string,
-            created: Date
-        }>,
-        created: Date,
-        updated: Date
+        sessionId: string
     }
 }
 const fetchData = new Promise<pageData>((resolve) => {
@@ -35,6 +26,71 @@ const fetchData = new Promise<pageData>((resolve) => {
                 }
             }],
         });
+    }
+    else if(window.location.pathname.startsWith('/cms/logout')){
+        fetch('/api/auth',{
+            method: 'POST',
+            headers: {
+                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+            },
+            body: JSON.stringify({
+                mode: 'logout',
+            })
+        }).then(res => res.json().then(response => {
+            if(!response.error) {
+                document.location.href = '/';
+                localStorage.removeItem('session');
+                sessionStorage.removeItem('session');
+            }
+            else {
+                console.log(response.error);
+                resolve({
+                    id: 'ERR',
+                    components: [{
+                        id: 'ERR',
+                        type: 'modal',
+                        data: {
+                            title: 'Could not log out',
+                            message: response.error.errorMessage,
+                            primaryAction:{
+                                label: 'Clear storage',
+                                onClick: () => {
+                                    localStorage.removeItem('session');
+                                    sessionStorage.removeItem('session');
+                                    document.location.href = '/';
+                                }
+                            }
+                        }
+                    }],
+            })
+            }
+        })).catch(err => {
+            resolve({
+                id: 'ERR',
+                components: [{
+                    id: 'ERR',
+                    type: 'modal',
+                    data: {
+                        title: 'Could not log out',
+                        message: err.message,
+                        primaryAction:{
+                            label: 'Try again',
+                            onClick: () => {
+                                document.location.reload()
+                            }
+                        },
+                        secondaryAction:{
+                            label: 'Clear storage',
+                            onClick: () => {
+                                localStorage.removeItem('session');
+                                sessionStorage.removeItem('session');
+                                document.location.href = '/';
+                            }
+                        }
+                    }
+                }],
+            })
+        })
     }
     if(currentPage!=='cms')
     fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`).then(res => res.json().then(data => {
@@ -69,7 +125,7 @@ const fetchData = new Promise<pageData>((resolve) => {
                                 id: '2',
                                 type: 'auth',
                                 data: {
-                                    title: 'Create Your admin account to start using PortCMS',
+                                    title: 'Create Your admin account to get started',
                                     mode: 'register',
                                     disableLogin: true,
                                     disablePasswordReset: true,

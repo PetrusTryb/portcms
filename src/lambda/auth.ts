@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions'
 import {MongoClient} from "mongodb";
-import {connectToDatabase} from "./mongoHelper";
+import {connectToDatabase, checkSession} from "./mongoHelper";
 import {createHash, randomUUID} from "crypto";
 
 const handler: Handler = async (event) => {
@@ -19,28 +19,9 @@ const handler: Handler = async (event) => {
         }
     }
     const db = mongoClient.db("portCMS");
+    const session = event.headers["session"];
     if (event.httpMethod === 'GET') {
-        const session = event.headers["session"];
-        if (!session) {
-            await mongoClient.close();
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
-                    error: {
-                        errorCode: 40001,
-                        errorMessage: "No session provided."
-                    }
-                })
-            }
-        }
-        const user = await db.collection('users').findOne(
-            {
-                sessions:
-                    {
-                        $elemMatch:{"id":session}
-                    }
-            }
-        );
+        const user = await checkSession(mongoClient, session);
         if (!user) {
             await mongoClient.close();
             return {
@@ -68,7 +49,7 @@ const handler: Handler = async (event) => {
                 statusCode: 400,
                 body: JSON.stringify({
                     error: {
-                        errorCode: 40201,
+                        errorCode: 40001,
                         errorMessage: "Invalid request body - no data provided."
                     }
                 })
@@ -82,7 +63,7 @@ const handler: Handler = async (event) => {
                     statusCode: 400,
                     body: JSON.stringify({
                         error: {
-                            errorCode: 40202,
+                            errorCode: 40002,
                             errorMessage: "No username, password or email provided."
                         }
                     })
@@ -100,7 +81,7 @@ const handler: Handler = async (event) => {
                     statusCode: 400,
                     body: JSON.stringify({
                         error: {
-                            errorCode: 40203,
+                            errorCode: 40003,
                             errorMessage: "Username or email already in use."
                         }
                     })
@@ -117,7 +98,7 @@ const handler: Handler = async (event) => {
                 }],
                 "created": new Date(),
                 "updated": new Date(),
-                "roles": await db.collection('users').countDocuments()===0 ? ["admin"] : [],
+                "roles": await db.collection('users').countDocuments()===0 ? ["admin"] : ["user"],
             }
             await db.collection('users').insertOne(newUser);
             await mongoClient.close();
@@ -127,14 +108,14 @@ const handler: Handler = async (event) => {
             }
         }
         if(data.mode==="login"){
-            if(!data.username || !data.password || !data.device){
+            if(!data.email || !data.password){
                 await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
                         error: {
-                            errorCode: 40204,
-                            errorMessage: "No username, password or device info provided."
+                            errorCode: 40004,
+                            errorMessage: "No email or password provided."
                         }
                     })
                 }
@@ -146,16 +127,20 @@ const handler: Handler = async (event) => {
             if (!user) {
                 await mongoClient.close();
                 return {
-                    statusCode: 401,
+                    statusCode: 403,
                     body: JSON.stringify({
                         error: {
-                            errorCode: 40205,
+                            errorCode: 40301,
                             errorMessage: "Login details are not correct."
                         }
                     })
                 }
             }
-            const session = randomUUID();
+            const session = {
+                "id": randomUUID(),
+                "created": new Date(),
+                "ip": event.headers['client-ip']
+            }
             await db.collection('users').updateOne({
                 "_id": user._id
             },{
@@ -166,40 +151,18 @@ const handler: Handler = async (event) => {
             await mongoClient.close();
             return {
                 statusCode: 200,
-                body: JSON.stringify({
-                    "session": {
-                        "id": session,
-                        "created": new Date(),
-                        "device": data.device
-                    }
-                })
+                body: JSON.stringify(session)
             }
         }
         if(data.mode==="logout"){
-            if(!data.session){
-                await mongoClient.close();
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
-                        error: {
-                            errorCode: 40206,
-                            errorMessage: "No session provided."
-                        }
-                    })
-                }
-            }
-            const user = await db.collection('users').findOne({
-                "session": {
-                    "id": data.session,
-                }
-            });
+            const user = await checkSession(mongoClient, session);
             if (!user) {
                 await mongoClient.close();
                 return {
                     statusCode: 401,
                     body: JSON.stringify({
                         error: {
-                            errorCode: 40207,
+                            errorCode: 40101,
                             errorMessage: "Invalid session."
                         }
                     })
@@ -210,18 +173,17 @@ const handler: Handler = async (event) => {
             },{
                 $pull: {
                     "sessions": {
-                        "id": data.session
+                        "id":session
                     }
                 }
             });
             await mongoClient.close();
             return {
                 statusCode: 200,
-                body: "Logout successful."
+                body: "{}"
             }
         }
-        }
-
+    }
     await mongoClient.close();
     return {
         statusCode: 500,

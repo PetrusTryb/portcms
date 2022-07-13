@@ -6,4 +6,22 @@ async function connectToDatabase(){
     await mongoClient.connect();
     return mongoClient
 }
-export {connectToDatabase}
+async function checkSession(mongoClient:MongoClient, session?:string){
+    if(!session) return null;
+    const db = mongoClient.db("portCMS");
+    const user = await db.collection('users').findOne(
+        {
+            sessions:
+                {
+                    $elemMatch:{"id":session}
+                }
+        }
+    );
+    if (!user) {
+        return null;
+    }
+    else{
+        return user;
+    }
+}
+export {connectToDatabase, checkSession}

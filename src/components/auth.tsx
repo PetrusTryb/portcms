@@ -26,10 +26,7 @@ export default function Auth(Props: AuthProps) {
         }
         fetch("/api/auth", {
             method: "POST",
-            body: JSON.stringify(data),
-            headers: {
-                "Content-Type": "application/json"
-            }
+            body: JSON.stringify(data)
             }
         ).then(res => res.json().then(data => {
             if(data.error){
@@ -148,7 +145,6 @@ export default function Auth(Props: AuthProps) {
                                 />
                             </div>
                         </div>
-
                         <div className="flex items-center justify-between">
                             {Props.data.mode !== "reset" && (
                                 <>
@@ -173,7 +169,6 @@ export default function Auth(Props: AuthProps) {
                                 </>
                             )}
                         </div>
-
                         <div>
                             <button
                                 type="submit"

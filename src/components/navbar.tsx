@@ -6,15 +6,19 @@ export type NavbarProps = {
     id: string,
     type: "navbar",
     data: {
-        logo: string,
-        smallLogo: string,
+        logo?: string,
+        smallLogo?: string,
         pages: Array<
             {
                 id: string,
                 name: string,
                 url: string
             }
-        >
+        >,
+        user?: {
+            username: string,
+            roles: string,
+        }
     }
 }
 
@@ -43,16 +47,19 @@ export default function Navbar(Props: NavbarProps) {
                             </div>
                             <div className="flex-1 flex items-center justify-center sm:items-stretch sm:justify-start">
                                 <div className="flex-shrink-0 flex items-center">
+                                    {Props.data.smallLogo && (
                                     <img
                                         className="block lg:hidden h-8 w-auto"
                                         src={Props.data.smallLogo}
                                         alt="Small logo"
                                     />
+                                    )}
+                                    {Props.data.logo && (
                                     <img
                                         className="hidden lg:block h-8 w-auto"
                                         src={Props.data.logo}
                                         alt="Logo"
-                                    />
+                                    />)}
                                 </div>
                                 <div className="hidden sm:block sm:ml-6">
                                     <div className="flex space-x-4">
@@ -90,12 +97,25 @@ export default function Navbar(Props: NavbarProps) {
                                         leaveFrom="transform opacity-100 scale-100"
                                         leaveTo="transform opacity-0 scale-95"
                                     >
-                                        <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                        <Menu.Items className="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white dark:bg-gray-800 ring-1 ring-black ring-opacity-5 focus:outline-none">
+                                            {Props.data.user?.roles.includes("admin") && (
+                                            <Menu.Item>
+                                                {({ active }) => (
+                                                    <a
+                                                        href="/cms/admin"
+                                                        className={classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-red-700')}
+                                                    >
+                                                        Admin dashboard
+                                                    </a>
+                                                )}
+                                            </Menu.Item>)}
+                                            {Props.data.user && (
+                                                <div>
                                             <Menu.Item>
                                                 {({ active }) => (
                                                     <a
                                                         href="/cms/account"
-                                                        className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                                        className={classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-400')}
                                                     >
                                                         Your Profile
                                                     </a>
@@ -105,7 +125,7 @@ export default function Navbar(Props: NavbarProps) {
                                                 {({ active }) => (
                                                     <a
                                                         href="/cms/settings"
-                                                        className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                                        className={classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-400')}
                                                     >
                                                         Settings
                                                     </a>
@@ -115,12 +135,25 @@ export default function Navbar(Props: NavbarProps) {
                                                 {({ active }) => (
                                                     <a
                                                         href="/cms/logout"
-                                                        className={classNames(active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700')}
+                                                        className={classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-400')}
                                                     >
                                                         Sign out
                                                     </a>
                                                 )}
                                             </Menu.Item>
+                                                    </div>)}
+                                            {!Props.data.user && (
+                                                <Menu.Item>
+                                                    {({ active }) => (
+                                                        <a
+                                                            href="/cms/login"
+                                                            className={classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-400')}
+                                                        >
+                                                            Sign in
+                                                        </a>
+                                                    )}
+                                                </Menu.Item>
+                                            )}
                                         </Menu.Items>
                                     </Transition>
                                 </Menu>

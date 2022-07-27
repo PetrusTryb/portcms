@@ -3,43 +3,34 @@
 Simple CMS for portfolios - second version.
 
 ## Features (roadmap)
+*This roadmap may change at any time without notice.*
 - [x] Basic structure
 - [ ] Components:
   - [x] Header
-  - [ ] Footer
+  - [ ] Footer [*planned for v2.1a*]
   - [x] Navigation bar
   - [ ] Page
   - [ ] Paragraph (advanced editor)
-  - [ ] Card (with image)
-  - [ ] Form
-  - [ ] Carousel
-  - [ ] Accordion
-  - [ ] Tabs (with content)
-- [ ] Fetching components from database (read-only)
-  - API endpoints:
-    - [ ] GET /api/pages/?lang={lang}
-    - [ ] GET /api/pages/{id}/?lang={lang}
-    - [ ] GET /api/pages/{id}/components/?lang={lang}
-    - [ ] GET /api/pages/{id}/components/{id}/?lang={lang}
-- [ ] Adding components to database, editing them (read-write)
-    - API endpoints:
-        - [ ] PUT /api/pages/
-        - [ ] PATCH /api/pages/{id}
-        - [ ] DELETE /api/pages/{id}
-        - [ ] PUT /api/pages/{id}/components/
-        - [ ] PATCH /api/pages/{id}/components/{id}
-        - [ ] DELETE /api/pages/{id}/components/{id}
+  - [ ] Card (with image) [*planned for v2.1a*]
+  - [ ] Form [*planned for v2.2a*]
+  - [ ] Carousel [*planned for v2.1a*]
+  - [ ] Accordion [*planned for v2.1a*]
+  - [ ] Tabs (with content) [*planned for v2.1a*]
+- [x] Pages management (CRUD)
+- [ ] Components management (CRUD)
 - [x] Quick installation
     - [x] Welcome screen
     - [x] Automatic installation
 - [ ] Dashboard
-  - [ ] Page list
+  - [x] Page list
   - [ ] Page editor
   - [ ] Component editor
   - [ ] Settings
-  - [ ] Logs
+  - [ ] Logs [*planned for v2.3a*]
   - [ ] Help
   - [ ] About
+- [ ] UI localisation [*planned for v2.4a*]
+- [ ] Advanced user permissions management (roles etc.) [*planned for v2.5a*]
 
 ## Installation
 1. Clone the repository

@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from 'react'
+import {Fragment, useEffect, useRef, useState} from 'react'
 import { Dialog, Transition } from '@headlessui/react'
 import { ExclamationIcon } from '@heroicons/react/outline'
 
@@ -16,24 +16,27 @@ export type ModalProps = {
             label: string,
             onClick: () => void
         }
-    }
+    },
+    hidden?: boolean,
 }
 
 export default function Modal(Props: ModalProps) {
-    const [open, setOpen] = useState(true)
-
+    const [open, setOpen] = useState(Props.hidden !== true);
+    useEffect(() => {
+        setOpen(Props.hidden !== true);
+    },[Props.hidden])
     const cancelButtonRef = useRef(null)
 
     return (
         <Transition.Root show={open} as={Fragment}>
-            <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={setOpen}>
+            <Dialog as="div" className="relative z-10" initialFocus={cancelButtonRef} onClose={()=>{setOpen(false);Props.data.secondaryAction?.onClick();}}>
                 <Transition.Child
                     as={Fragment}
                     enter="ease-out duration-300"
                     enterFrom="opacity-0"
-                    enterTo="opacity-100"
+                    enterTo="opacity-75"
                     leave="ease-in duration-200"
-                    leaveFrom="opacity-100"
+                    leaveFrom="opacity-75"
                     leaveTo="opacity-0"
                 >
                     <div className="fixed inset-0 bg-gray-500 dark:bg-gray-900 bg-opacity-75 transition-opacity" />

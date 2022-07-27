@@ -6,14 +6,17 @@ import Cookies from "./components/cookies";
 type pageData = {
     id: string,
     components: Array<ComponentProps[keyof ComponentProps]>,
-    user?: {
-        username: string,
-        sessionId: string
+    userData?: {
+        name: string,
+        sessionId: string,
+        roles: Array<string>
     }
 }
 const fetchData = new Promise<pageData>((resolve) => {
     const preferredLanguage = navigator.language.split('-')[0];
-    const currentPage = window.location.pathname.split('/')[1];
+    let currentPage = window.location.pathname;
+    if(!currentPage.endsWith('/'))
+        currentPage += '/';
     if(window.location.pathname.startsWith('/cms/login')){
         resolve({
             id: 'login',
@@ -92,8 +95,12 @@ const fetchData = new Promise<pageData>((resolve) => {
             })
         })
     }
-    if(currentPage!=='cms')
-    fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`).then(res => res.json().then(data => {
+    if(!window.location.pathname.startsWith("/cms/"))
+    fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`,{
+        headers: {
+            'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+        }
+    }).then(res => res.json().then(data => {
         if(data.error){
             switch (data.error.errorCode) {
                 case 50001:
@@ -135,7 +142,7 @@ const fetchData = new Promise<pageData>((resolve) => {
                     });
                     break;
                 case 40401:
-                    if(currentPage===''){
+                    if(currentPage==='/'){
                         document.location.href="/cms/admin";
                     }
                     else{

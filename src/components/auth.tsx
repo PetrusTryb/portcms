@@ -10,6 +10,11 @@ export type AuthProps = {
         disableLogin?: boolean,
         disableRegister?: boolean,
         disablePasswordReset?: boolean,
+    },
+    userData?: {
+        "_id": string,
+        "username": string,
+        "roles": string[]
     }
 }
 export default function Auth(Props: AuthProps) {

@@ -1,198 +1,165 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import './App.css';
 import Component, {ComponentProps} from "./components/component";
 import Cookies from "./components/cookies";
+import AdminBar from "./admin/adminBar";
+import Loader from "./components/loader";
 
 type pageData = {
-    id: string,
+    _id: string,
+    url?: string,
     components: Array<ComponentProps[keyof ComponentProps]>,
+    metadata?: {
+        title: string,
+        description?: string,
+    }
     userData?: {
-        name: string,
-        sessionId: string,
+        _id: string,
+        username: string,
         roles: Array<string>
     }
 }
-const fetchData = new Promise<pageData>((resolve) => {
-    const preferredLanguage = navigator.language.split('-')[0];
-    let currentPage = window.location.pathname;
-    if(!currentPage.endsWith('/'))
-        currentPage += '/';
-    if(window.location.pathname.startsWith('/cms/login')){
-        resolve({
-            id: 'login',
-            components: [{
-                id: 'login',
-                type: 'auth',
-                data: {
-                    title: 'Sign in',
-                    mode: 'login',
-                }
-            }],
-        });
-    }
-    else if(window.location.pathname.startsWith('/cms/logout')){
-        fetch('/api/auth',{
-            method: 'POST',
-            headers: {
-                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
-            },
-            body: JSON.stringify({
-                mode: 'logout',
-            })
-        }).then(res => res.json().then(response => {
-            if(!response.error) {
-                document.location.href = '/';
-                localStorage.removeItem('session');
-                sessionStorage.removeItem('session');
-            }
-            else {
-                console.log(response.error);
-                resolve({
-                    id: 'ERR',
-                    components: [{
-                        id: 'ERR',
-                        type: 'modal',
-                        data: {
-                            title: 'Could not log out',
-                            message: response.error.errorMessage,
-                            primaryAction:{
-                                label: 'Clear storage',
-                                onClick: () => {
-                                    localStorage.removeItem('session');
-                                    sessionStorage.removeItem('session');
-                                    document.location.href = '/';
-                                }
-                            }
-                        }
-                    }],
-            })
-            }
-        })).catch(err => {
-            resolve({
-                id: 'ERR',
-                components: [{
-                    id: 'ERR',
-                    type: 'modal',
-                    data: {
-                        title: 'Could not log out',
-                        message: err.message,
-                        primaryAction:{
-                            label: 'Try again',
-                            onClick: () => {
-                                document.location.reload()
-                            }
-                        },
-                        secondaryAction:{
-                            label: 'Clear storage',
-                            onClick: () => {
-                                localStorage.removeItem('session');
-                                sessionStorage.removeItem('session');
-                                document.location.href = '/';
-                            }
-                        }
-                    }
-                }],
-            })
-        })
-    }
-    if(!window.location.pathname.startsWith("/cms/"))
-    fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`,{
-        headers: {
-            'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
-        }
-    }).then(res => res.json().then(data => {
-        if(data.error){
-            switch (data.error.errorCode) {
-                case 50001:
-                    resolve({id: 'ERROR', components: [
-                        {
-                            id: 'error',
-                            type: 'hero',
-                            data: {
-                                title: 'Error',
-                                subtitle: data.error.errorMessage,
-                                image: "https://images.unsplash.com/photo-1505776777247-d26acc0e505b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80",
-                            }
-                        }
-                    ]});
-                    break;
-                case 50002:
-                    resolve({
-                        id: 'WELCOME', components: [
-                            {
-                                id: '1',
-                                type: 'hero',
-                                data: {
-                                    title: 'Hello World',
-                                    subtitle: data.error.errorMessage,
-                                    image: "https://images.unsplash.com/photo-1596443686812-2f45229eebc3?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80",
-                                }
-                            },
-                            {
-                                id: '2',
-                                type: 'auth',
-                                data: {
-                                    title: 'Create Your admin account to get started',
-                                    mode: 'register',
-                                    disableLogin: true,
-                                    disablePasswordReset: true,
-                                }
-                            }
-                            ]
-                    });
-                    break;
-                case 40401:
-                    if(currentPage==='/'){
-                        document.location.href="/cms/admin";
-                    }
-                    else{
-                        resolve({id: 'ERROR', components: [
-                            {
-                                id: 'error',
-                                type: 'hero',
-                                data: {
-                                    title: 'Error 404',
-                                    subtitle: data.error.errorMessage,
-                                    image: "https://images.unsplash.com/photo-1505776777247-d26acc0e505b?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1000&q=80",
-                                }
-                            }
-                        ]});
-                    }
-            }
-        }
-        resolve(data);
-    })).catch(err => {
-        console.error(err);
-        resolve({id: 'ERR', components: [
-            {
-                id: 'ERR',
-                type: "modal",
-                data: {
-                    title: "Error",
-                    message: "Something went wrong. Please try again later.",
-                    primaryAction: {
-                        label: "Reload",
-                        onClick: () => window.location.reload()
-                    }
-                }
-            }
-            ]});
-    });
-})
 
-function App() {
-    const [data, setData] = useState<pageData>({id: 'WAIT', components: []});
-    useEffect(() => {
-        fetchData.then(data => setData(data));
-    }, []);
-  return (
-    <div className="App">
-        {data.components.map((component) => (
-            <Component key={component.id} {...component} />
-        ))}
-        <Cookies />
-    </div>
-  );
+class App extends React.Component<{}, {data: pageData}> {
+    constructor(props: {}) {
+        super(props);
+        this.state = {data: {_id: 'WAIT', components: []}};
+    }
+    error(st:number, msg:string){
+        let ans = {
+            _id: '0',
+            components: [{
+                id: '0',
+                type: 'modal',
+                data: {}
+            }]
+        }
+        switch (st){
+            case 50001:
+                ans.components[0].data = {
+                    title: 'Database connection error',
+                    message: msg,
+                    primaryAction: {
+                        label: 'Reload',
+                        onClick: () => window.location.reload()
+                    },
+                    secondaryAction: {
+                        label: 'Report issue',
+                        onClick: () => window.open("https://github.com/PetrusTryb/portcms/issues")
+                    }
+                }
+                break;
+            case 50002:
+                ans.components= [
+                {
+                    id: '1',
+                    type: 'hero',
+                    data: {
+                        title: 'Hello World',
+                        subtitle: msg,
+                        image: "https://images.unsplash.com/photo-1596443686812-2f45229eebc3?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80",
+                    }
+                },
+                {
+                    id: '2',
+                    type: 'auth',
+                    data: {
+                        title: 'Create Your admin account to get started',
+                        mode: 'register',
+                        disableLogin: true,
+                        disablePasswordReset: true,
+                    }
+                }
+            ]
+                break;
+            case 40401:
+                ans.components[0].data = {
+                    title: 'Sorry, we are unable to display this page',
+                    message: msg,
+                    primaryAction: {
+                        label: 'Go to admin dashboard and create it',
+                        onClick: () => window.location.href = "/cms/admin/"
+                    },
+                    secondaryAction:{
+                        label: 'Go to homepage',
+                        onClick: () => window.location.href = '/'
+                    }
+                }
+                break;
+            default:
+                ans.components[0].data = {
+                    title: 'Error #'+st,
+                    message: "An error occurred while loading this page. Please try again later.",
+                    primaryAction: {
+                        label: 'Reload',
+                        onClick: () => window.location.reload()
+                    },
+                    secondaryAction: {
+                        label: 'Ignore',
+                        onClick: () => console.log('Ignoring error')
+                    }
+                }
+        }
+        console.log(st,ans);
+        return ans;
+    }
+    fetchData = new Promise<pageData>((resolve) => {
+        const preferredLanguage = navigator.language.split('-')[0];
+        let currentPage = window.location.pathname;
+        if(!currentPage.endsWith('/'))
+            currentPage += '/';
+        if(window.location.pathname.startsWith('/cms/logout')){
+            fetch('/api/auth',{
+                method: 'POST',
+                headers: {
+                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                },
+                body: JSON.stringify({
+                    mode: 'logout',
+                })
+            }).then(res => res.json().then(response => {
+                if(!response.error) {
+                    document.location.href = '/';
+                    localStorage.removeItem('session');
+                    sessionStorage.removeItem('session');
+                }
+                else {
+                    resolve(this.error(response.error.errorCode, response.error.errorMessage) as pageData);
+                }
+            })).catch(err => {
+                resolve(this.error(1, err.message) as pageData);
+            })
+        }
+            fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`,{
+                headers: {
+                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                }
+            }).then(res => res.json().then(data => {
+                if(data.error){
+                    resolve(this.error(data.error.errorCode, data.error.errorMessage) as pageData);
+                }
+                resolve(data);
+            })).catch(err => {
+                resolve(this.error(2, err.message) as pageData);
+            });
+    })
+    componentDidMount() {
+        this.fetchData.then(data => this.setState({data}));
+    }
+    render() {
+        if(this.state.data._id==="WAIT")
+            return <Loader loading={true}/>;
+        else
+            return (
+                <div className="App" id="MainDiv" data-page={this.state.data._id} data-user={JSON.stringify(this.state.data.userData)}>
+                    {this.state.data.components.map((component) => (
+                        <Component key={component.id} userData={this.state.data.userData} {...component}/>
+                    ))}
+                    <Cookies />
+                    {this.state.data.userData?.roles.includes('admin') && <AdminBar pageData={this.state.data}/>}
+                </div>
+            );
+    }
 }
 
 export default App;

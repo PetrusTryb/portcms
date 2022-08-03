@@ -1,6 +1,6 @@
 import { Handler } from '@netlify/functions'
 import {MongoClient, ObjectId} from "mongodb";
-import {checkSession, connectToDatabase, swapPositions} from "./mongoHelper";
+import {checkSession, connectToDatabase} from "./mongoHelper";
 import localise from "./localisationHelper";
 
 const handler: Handler = async (event) => {
@@ -145,10 +145,13 @@ const handler: Handler = async (event) => {
                         "user": user
                     }
                 }
-                if(result.components.length>0)
+                if(result.components.length>0) {
+                    result.components = result.components.sort((a:any, b:any) => a.position - b.position);
                     result.components = [nav, ...result.components];
+                }
                 else
                     result.components = [nav];
+                result.userData = user;
                 return {
                     statusCode: 200,
                     body: JSON.stringify(result)
@@ -226,7 +229,7 @@ const handler: Handler = async (event) => {
                 updatedAt: new Date(),
                 updatedBy: user._id
             },
-            components: {},
+            components: [],
             visible: page.visible,
             position: new Date().valueOf()
         }
@@ -303,22 +306,37 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const swapData = JSON.parse(event.body||"{}");
-        if(!swapData.id1||!swapData.id2){
+        const data = JSON.parse(event.body||"{}");
+        if(data.id){
+            const instance = await db.collection('pages').updateOne(
+                {_id: new ObjectId(data.id)},
+                {$set: {visible: data.visible}},
+                {upsert: false}
+                );
+            await mongoClient.close();
+            return {
+                statusCode: 200,
+                body: JSON.stringify({
+                    worked: instance.acknowledged,
+                    updatedId: data.id
+                })
+            }
+        }
+        else if(!data.id1||!data.id2){
             await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
                     error: {
                         errorCode: 40002,
-                        errorMessage: "Parameters id1 and id2 are required."
+                        errorMessage: "No page id provided."
                     }
                 })
             }
         }
-        try{
-            await swapPositions("pages", mongoClient, swapData.id1, swapData.id2);
-        }catch(e){
+        const leftPage = await db.collection("pages").findOne({_id: new ObjectId(data.id1)});
+        const rightPage = await db.collection("pages").findOne({_id: new ObjectId(data.id2)});
+        if (!leftPage || !rightPage) {
             await mongoClient.close();
             return {
                 statusCode: 400,
@@ -330,13 +348,23 @@ const handler: Handler = async (event) => {
                 })
             }
         }
+        const leftPosition = leftPage.position;
+        const rightPosition = rightPage.position;
+        await db.collection("pages").updateOne(
+            {_id: new ObjectId(data.id1)},
+            {$set: {position: rightPosition}}
+        );
+        await db.collection("pages").updateOne(
+            {_id: new ObjectId(data.id2)},
+            {$set: {position: leftPosition}}
+        );
         await mongoClient.close();
         return {
             statusCode: 200,
             body: JSON.stringify({
                 worked: true,
-                updatedId: swapData.id1,
-                updatedId2: swapData.id2
+                updatedId: data.id1,
+                updatedId2: data.id2
             })
         }
     }
@@ -378,8 +406,7 @@ const handler: Handler = async (event) => {
     }
     await mongoClient.close();
     return {
-        statusCode: 500,
-        body: 'Unknown HTTP method'
+        statusCode: 400
     }
 }
 

@@ -186,8 +186,7 @@ const handler: Handler = async (event) => {
     }
     await mongoClient.close();
     return {
-        statusCode: 500,
-        body: 'Unknown HTTP method'
+        statusCode: 400
     }
 }
 export { handler }

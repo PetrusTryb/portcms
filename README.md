@@ -6,26 +6,30 @@ Simple CMS for portfolios - second version.
 *This roadmap may change at any time without notice.*
 - [x] Basic structure
 - [ ] Components:
-  - [x] Header
+  - [x] Hero
   - [ ] Footer [*planned for v2.1a*]
   - [x] Navigation bar
-  - [ ] Page
+  - [x] Page
   - [ ] Paragraph (advanced editor)
   - [ ] Card (with image) [*planned for v2.1a*]
-  - [ ] Form [*planned for v2.2a*]
+  - [ ] Contact form [*planned for v2.2a*]
   - [ ] Carousel [*planned for v2.1a*]
   - [ ] Accordion [*planned for v2.1a*]
   - [ ] Tabs (with content) [*planned for v2.1a*]
+  - [ ] Counter [*planned for v2.2a*]
+  - [ ] Team [*planned for v2.2a*]
+  - [ ] Latest news [*planned for v2.2a*]
 - [x] Pages management (CRUD)
-- [ ] Components management (CRUD)
+- [x] Components management (CRUD)
 - [x] Quick installation
     - [x] Welcome screen
     - [x] Automatic installation
-- [ ] Dashboard
+- [ ] Administration
   - [x] Page list
-  - [ ] Page editor
-  - [ ] Component editor
+  - [x] Page editor
+  - [x] Component editor
   - [ ] Settings
+    - [ ] Service mode
   - [ ] Logs [*planned for v2.3a*]
   - [ ] Help
   - [ ] About

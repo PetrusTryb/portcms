@@ -6,13 +6,16 @@ module.exports = {
   theme: {
     extend: {
       colors: {
-        info: "#0070BF",
-        accent: "#0066EE",
-        accent2: "#1943CF",
-        dark: "#222628"
+        info: "#e88d1f",
+        accent: "#13003f",
+        accent2: "#b89aff",
+        dark: "#111111"
       },
       opacity: {
         disabled: "0.04"
+      },
+      height: {
+        "36px": "36px",
       }
     },
   },

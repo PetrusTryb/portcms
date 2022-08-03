@@ -4,13 +4,25 @@ import './index.css';
 import App from './App';
 import Admin from './admin/admin';
 import reportWebVitals from './reportWebVitals';
+import {BrowserRouter, Routes, Route} from "react-router-dom";
+import Auth from "./components/auth";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
-      {(!document.location.pathname.startsWith("/cms/admin")) ? <App/> : <Admin/>}
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<App/>} >
+            <Route path=":pageUrl"></Route>
+          </Route>
+          <Route path="/cms/" >
+            <Route path="admin/*" element={<Admin/>} />
+            <Route path="login" element={<Auth id="auth" type="auth" data={{"mode":"login", "title":"Log in to PortCMS"}}/>}/>
+          </Route>
+        </Routes>
+      </BrowserRouter>
   </React.StrictMode>
 );
 

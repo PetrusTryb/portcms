@@ -61,7 +61,7 @@ export const UserAddableComponents: Array<ComponentSpec> = [
                     {
                         name: "Content",
                         systemName: "content",
-                        type: "localizedString",
+                        type: "localizedRichText",
                     }
                 ]
             }

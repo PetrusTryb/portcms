@@ -6,6 +6,7 @@ import Admin from './admin/admin';
 import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Auth from "./components/auth";
+import "react-quill/dist/quill.bubble.css";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -20,6 +21,7 @@ root.render(
           <Route path="/cms/" >
             <Route path="admin/*" element={<Admin/>} />
             <Route path="login" element={<Auth id="auth" type="auth" data={{"mode":"login", "title":"Log in to PortCMS"}}/>}/>
+            <Route path="logout" element={<App/>} />
           </Route>
         </Routes>
       </BrowserRouter>

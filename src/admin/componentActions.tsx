@@ -123,7 +123,7 @@ class ComponentActions extends React.Component<ComponentActionsProps,ComponentAc
                 }
             }} hidden={!this.state.isModalOpen}></Modal>
             <ComponentConfig onClose={()=>this.setState({visible:false})} visible={this.state.visible} pageId={this.state.pageId} componentId={this.props.componentId} componentSpec={this.state.componentSpec} componentData={this.state.componentData}/>
-            <div className={this.getPermissions()>-1?"float-right mr-4 z-20 bg-gray-500 rounded-2xl":"hidden"}>
+            <div className={this.getPermissions()>-1?"absolute right-1 z-20 mr-4 bg-gray-500 rounded-2xl opacity-70":"hidden"}>
             <button className="font-bold py-1 px-1 rounded-full" title={`Edit component`} onClick={()=>this.openComponentConfig()}>
                 <CogIcon className="w-4 h-4 inline text-[#cccccc] hover:text-current"/>
             </button>

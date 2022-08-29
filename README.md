@@ -10,7 +10,7 @@ Simple CMS for portfolios - second version.
   - [ ] Footer [*planned for v2.1a*]
   - [x] Navigation bar
   - [x] Page
-  - [ ] Paragraph (advanced editor)
+  - [x] Paragraph (advanced editor)
   - [ ] Card (with image) [*planned for v2.1a*]
   - [ ] Contact form [*planned for v2.2a*]
   - [ ] Carousel [*planned for v2.1a*]
@@ -29,6 +29,7 @@ Simple CMS for portfolios - second version.
   - [x] Page editor
   - [x] Component editor
   - [ ] Settings
+    - [ ] Website metadata
     - [ ] Service mode
   - [ ] Logs [*planned for v2.3a*]
   - [ ] Help

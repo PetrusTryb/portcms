@@ -25,9 +25,9 @@ class Paragraph extends React.Component<ParagraphProps, {}> {
         if(typeof content !== "string" && content){
             content = localize(content, this.props.data.preferredLanguage);
         }
-        return <div id={this.props.id} className="mx-4 my-4 text-black dark:text-white">
+        return <div id={this.props.id} className="mx-4 my-4 text-black dark:text-white ql-bubble ql-editor">
             <ComponentActions componentId={this.props.id} userData={userData}/>
-            {content}
+            <div className="ql-bubble ql-editor" dangerouslySetInnerHTML={{__html:content}}></div>
         </div>
     }
 }

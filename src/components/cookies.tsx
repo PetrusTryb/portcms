@@ -6,7 +6,7 @@ export default function Cookies(){
     }
     if (!wasClosed)
     return (
-        <div className="fixed bottom-4 right-1 lg:right-4 p-4 bg-white dark:bg-dark border-t-4 shadow-lg">
+        <div className="fixed bottom-4 right-1 lg:right-4 p-4 bg-white dark:bg-dark border-t-4 shadow-lg z-30">
             <h2 className="text-lg lg:text-xl mb-4 block font-bold leading-tight text-gray-600 dark:text-gray-300">Cookie Policy</h2>
             <div className="lg:flex lg:space-x-5">
                 <p className="mb-5 font-medium text-gray-600 dark:text-gray-300">

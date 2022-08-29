@@ -85,7 +85,7 @@ class ComponentConfig extends React.Component<ComponentConfigProps,ComponentConf
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-x-1 gap-y-10">
                                 <form className="block">
                                     {componentSpec?.properties.map((category) => (
-                                        <Disclosure as="div" key={category.category} className="border-t border-gray-200 px-4 py-6">
+                                        <Disclosure as="div" key={category.category} className="px-4 py-6">
                                             {({ open }) => (
                                                 <>
                                                     <h3 className="-mx-2 -my-3 flow-root">

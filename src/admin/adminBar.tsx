@@ -70,13 +70,13 @@ class AdminBar extends React.Component<AdminBarProps, AdminBarState> {
         return <div>
             <ComponentConfig pageId={pageData?._id||""} visible={componentConfigVisible} componentSpec={componentSpec} componentData={componentProps} onClose={()=>this.setState({componentConfigVisible:false})}/>
             <AddComponent visible={addComponentVisible} onClose={(result) => this.openComponentConfig(result)} pageVisible={pageData?.visible}/>
-            <div className="bg-gray-800 w-full">
+            <div className="bg-gray-800 w-full opacity-80">
                 <aside
-                    className="fixed bottom-0 left-0 z-20 p-1 w-full bg-white border-t border-gray-200 shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800 dark:border-gray-600">
+                    className="fixed bottom-0 left-0 z-20 w-full bg-white border-t border-gray-200 shadow md:flex md:items-center md:justify-between md:p-1 dark:bg-gray-800 dark:border-gray-600">
     <span className="text-sm text-black sm:text-center dark:text-white">
         Current Page: <code>{pageData?.url}</code> ({pageData?.metadata?.title})
     </span>
-                    <ul className="flex flex-wrap items-center mt-3 text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
+                    <ul className="flex flex-wrap items-center mt-3 text-sm text-gray-500 dark:text-gray-400 sm:mt-0 list-none">
                         <li>
                             <button onClick={()=>{this.setState({addComponentVisible:true})}} title="Add component" className="p-2 mr-0.5 border border-gray-200 dark:border-gray-600 rounded-full dark:bg-gray-600 dark:hover:bg-gray-700 dark:active:bg-gray-700">
                                 <ViewGridAddIcon className="w-5 h-5 inline"/> Add component

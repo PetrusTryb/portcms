@@ -151,7 +151,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                         </label>
                                         <div className="mt-1 rounded-md shadow-sm">
                                             <input id="url" name="url" defaultValue={this.state.pageData?.url}
-                                                   className="form-input block w-full transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
+                                                   className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                             <label htmlFor="url"
                                                    className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Relative URL to the page.
@@ -178,7 +178,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                             }}/>
                                             <label
                                                 className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
-                                                Select language You want to edit
+                                                Title will be shown in browser's title bar and navbar
                                             </label>
                                         </div>
                                     </div>
@@ -200,7 +200,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                                                    })}/>
                                             <label
                                                 className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
-                                                Select language You want to edit
+                                                Will be shown in search engines, about 150-160 chars
                                             </label>
                                         </div>
                                     </div>
@@ -220,8 +220,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                                    className="form-checkbox h-4 w-4 text-accent2 transition duration-150 ease-in-out"/>
                                             <label htmlFor="visible"
                                                    className="ml-1 inline text-sm leading-5 text-gray-700 dark:text-gray-400">
-                                                Make this page visible to all visitors of Your website (You can change
-                                                this later in the page settings).
+                                                Make this page visible to all visitors of Your website
                                             </label>
                                         </div>
                                     </div>

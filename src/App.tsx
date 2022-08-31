@@ -12,6 +12,7 @@ type pageData = {
     metadata?: {
         title: string,
         description?: string,
+        websiteTitle?: string
     }
     userData?: {
         _id: string,
@@ -27,7 +28,7 @@ class App extends React.Component<{}, {data: pageData}> {
     }
     error(st:number, msg:string){
         let ans = {
-            _id: '0',
+            _id: 'Error #'+st,
             components: [{
                 id: '0',
                 type: 'modal',
@@ -77,13 +78,27 @@ class App extends React.Component<{}, {data: pageData}> {
                     title: 'Sorry, we are unable to display this page',
                     message: msg,
                     primaryAction: {
-                        label: 'Go to admin dashboard and create it',
+                        label: 'Log in to admin panel',
                         onClick: () => window.location.href = "/cms/admin/"
                     },
                     secondaryAction:{
                         label: 'Go to homepage',
                         onClick: () => window.location.href = '/'
                     }
+                }
+                break;
+            case 50301:
+                ans.components[0].data = {
+                    title: "Website under maintenance",
+                    message: msg,
+                    primaryAction: {
+                        label: 'Disable maintenance mode',
+                        onClick: () => window.location.href = "/cms/admin/settings"
+                    },
+                    secondaryAction: {
+                        label: 'Reload',
+                        onClick: () => window.location.reload()
+                    },
                 }
                 break;
             default:
@@ -149,16 +164,21 @@ class App extends React.Component<{}, {data: pageData}> {
     render() {
         if(this.state.data._id==="WAIT")
             return <Loader loading={true}/>;
-        else
+        else {
+            document.title=`${this.state.data.metadata?.title||this.state.data.url||this.state.data._id} | ${this.state.data.metadata?.websiteTitle||document.location.hostname}`
+            if (this.state.data.metadata?.description)
+                document.querySelector('meta[name="description"]')?.setAttribute("content", this.state.data.metadata.description);
             return (
-                <div className="App" id="MainDiv" data-page={this.state.data._id} data-user={JSON.stringify(this.state.data.userData)}>
+                <div className="App" id="MainDiv" data-page={this.state.data._id}
+                     data-user={JSON.stringify(this.state.data.userData)}>
                     {this.state.data.components.map((component) => (
                         <Component key={component.id} userData={this.state.data.userData} {...component}/>
                     ))}
-                    <Cookies />
+                    <Cookies/>
                     {this.state.data.userData?.roles.includes('admin') && <AdminBar pageData={this.state.data}/>}
                 </div>
             );
+        }
     }
 }
 

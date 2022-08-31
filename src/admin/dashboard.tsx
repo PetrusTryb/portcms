@@ -35,6 +35,7 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                     if(response.length > 0) {
                         data.recentPages = response.sort((a: Page, b: Page) => new Date(b.metadata.updatedAt).valueOf() - new Date(a.metadata.updatedAt).valueOf()).slice(0, 3);
                         let homePage = response.find((page: Page) => page.url === '/');
+                        let globalConfig = response.find((page: Page) => page.url === '*');
                         if(homePage?.visible)
                             data.status.push({
                                 type: 'success',
@@ -55,12 +56,19 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                                 link: '/cms/admin/pages/new',
                             })
                         }
-                        if(!response.find((page:Page) => page.url==="*")){
+                        if(!globalConfig){
                             data.status.push({
                                 type: 'warning',
                                 message: 'Website name is not set. Please set it in the settings.',
                                 link: '/cms/admin/settings',
                             })
+                        }
+                        else if(globalConfig.serviceMode){
+                            data.status[0]={
+                                type: 'warning',
+                                message: 'Maintenance mode is enabled. Visitors will not be able to see Your website.',
+                                link: '/cms/admin/settings',
+                            }
                         }
                     }
                     else

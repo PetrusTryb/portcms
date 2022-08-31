@@ -100,6 +100,7 @@ const handler: Handler = async (event) => {
             }
         }else {
             const page = await db.collection('pages').findOne({"url": pageUrl});
+            const globalConfig = await db.collection('pages').findOne({"url":"*"});
             let allPages = await db.collection('pages').find({"visible":true},{projection:{
                     "url":1,
                     "metadata.title":1,
@@ -118,6 +119,17 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
+            if(globalConfig?.serviceMode && !user?.roles.includes("admin")){
+                return {
+                    statusCode: 503,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 50301,
+                            errorMessage: "This website is currently under maintenance. Please try again later."
+                        }
+                    })
+                }
+            }
             if(page.visible || user?.roles.includes("admin")){
                 let result = page;
                 if(preferredLanguage){
@@ -126,7 +138,8 @@ const handler: Handler = async (event) => {
                         metadata: {
                             ...page.metadata,
                             title: localise(page.metadata.title, preferredLanguage),
-                            description: localise(page.metadata.description, preferredLanguage)
+                            description: localise(page.metadata.description, preferredLanguage),
+                            websiteTitle: localise(globalConfig?.metadata?.title, preferredLanguage)
                         }
                     }
                 }
@@ -142,7 +155,9 @@ const handler: Handler = async (event) => {
                                 "name": localise(p.metadata.title, preferredLanguage||"default")
                             }
                         }),
-                        "user": user
+                        "user": user,
+                        "logo": globalConfig?.metadata.logo,
+                        "smallLogo": globalConfig?.metadata.smallLogo
                     }
                 }
                 if(result.components.length>0) {

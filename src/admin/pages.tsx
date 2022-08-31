@@ -53,7 +53,7 @@ class AdminPagesList extends React.Component<{}, pagesListState> {
         }).then(res => res.json().then(response => {
             let recent = [...response]
             if(!response.error) {
-                data.pages = response.sort((a: Page, b: Page) => a.position - b.position);
+                data.pages = response.sort((a: Page, b: Page) => a.position - b.position).filter((x: Page)=>x.url!=="*");
                 data.recentPages = recent.sort((a:Page, b:Page) => new Date(b.metadata.updatedAt).valueOf() - new Date(a.metadata.updatedAt).valueOf()).slice(0,3);
             }
             else if(!document.location.pathname.startsWith('/cms/login'))

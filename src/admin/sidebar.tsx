@@ -68,6 +68,9 @@ class AdminSidebar extends React.Component {
                             </a>
                         </li>
                     </ul>
+                    <div className="absolute bottom-1">
+                        <p className="text-gray-500 italic text-xs text-ellipsis"><a href="https://github.com/PetrusTryb/PortCMS" target="_blank" rel="noreferrer">PortCMS<br/>v2.0</a></p>
+                    </div>
                 </div>
             </aside>
         )

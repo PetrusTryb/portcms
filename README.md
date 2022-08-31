@@ -28,12 +28,12 @@ Simple CMS for portfolios - second version.
   - [x] Page list
   - [x] Page editor
   - [x] Component editor
-  - [ ] Settings
-    - [ ] Website metadata
-    - [ ] Service mode
+  - [x] Settings
+    - [x] Website metadata
+    - [x] Service mode
   - [ ] Logs [*planned for v2.3a*]
   - [ ] Help
-  - [ ] About
+  - [x] About
 - [ ] UI localisation [*planned for v2.4a*]
 - [ ] Advanced user permissions management (roles etc.) [*planned for v2.5a*]
 

@@ -24,7 +24,7 @@ class AllPages extends React.Component<AllPagesProps>{
             fetch(`/api/pages/`, {
                 method: 'PATCH',
                 headers: {
-                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
                 },
                 body: JSON.stringify({
                     id1: id1,
@@ -67,10 +67,11 @@ class AllPages extends React.Component<AllPagesProps>{
                                                     <div className="font-medium">{page.metadata.title} {!page.visible?<EyeOffIcon className="h-4 w-4 inline text-accent dark:text-[#E0E0E0]"/>:""}</div>
                                                 </div>
                                                 <div className="flex flex-col text-gray-600 dark:text-gray-400 text-xs">
-                                                    <button onClick={this.swapPositions} data-id1={page._id} data-id2={array.at(index-1)?._id} disabled={index===0} className="disabled:opacity-disabled disabled:transform-none active:opacity-0 mb-1 bg-gray-300 dark:bg-gray-700 dark:text-gray-300 rounded-md p-1 transition duration-500 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
+                                                    {/*Disable move up button when index = 0 and move down button when length of array - index = 1*/}
+                                                    <button onClick={this.swapPositions} title="Move this page Left in the navigation" data-id1={page._id} data-id2={array.at(index-1)?._id} disabled={index===0} className="disabled:opacity-disabled disabled:transform-none active:opacity-0 mb-1 bg-gray-300 dark:bg-gray-700 dark:text-gray-300 rounded-md p-1 transition duration-500 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
                                                         <ArrowUpIcon className="w-5 h-5 inline"/>
                                                     </button>
-                                                    <button onClick={this.swapPositions} data-id1={page._id} data-id2={array.at(index+1)?._id} disabled={index+1===array.length} className="disabled:opacity-disabled disabled:transform-none active:opacity-0 bg-gray-300 dark:bg-gray-700 dark:text-gray-300 rounded-md p-1 transition duration-500 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
+                                                    <button onClick={this.swapPositions} title="Move this page Right in the navigation" data-id1={page._id} data-id2={array.at(index+1)?._id} disabled={index+1===array.length} className="disabled:opacity-disabled disabled:transform-none active:opacity-0 bg-gray-300 dark:bg-gray-700 dark:text-gray-300 rounded-md p-1 transition duration-500 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg">
                                                         <ArrowDownIcon className="w-5 h-5 inline"/>
                                                     </button>
                                                 </div>

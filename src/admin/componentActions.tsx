@@ -50,7 +50,8 @@ class ComponentActions extends React.Component<ComponentActionsProps,ComponentAc
         })
         fetch(`/api/components/?componentId=${this.props.componentId}&pageId=${pageId}`,{
             headers: {
-                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
+                'cache-control': 'no-cache',
             },
         }).then((response)=>{
             if(response.ok) {
@@ -77,7 +78,7 @@ class ComponentActions extends React.Component<ComponentActionsProps,ComponentAc
             }
         }).then(response => {
             if (response.ok) {
-                window.location.reload();
+                window.location.search = "forceReload=true";
             } else {
                 console.log("error");
             }
@@ -103,7 +104,7 @@ class ComponentActions extends React.Component<ComponentActionsProps,ComponentAc
                             }
                         }).then(response => {
                             if (response.ok) {
-                                window.location.reload();
+                                document.location.search = "forceReload=true";
                             } else {
                                 console.log("error");
                             }

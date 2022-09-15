@@ -12,7 +12,7 @@ import React from "react";
 class AdminSidebar extends React.Component {
     render() {
         return (
-            <aside className="w-16 float-left hover:w-64 transition-[width] duration-300 absolute h-full z-10"
+            <aside className="w-16 float-left hover:w-64 transition-[width] duration-500 absolute h-full z-10"
                    aria-label="Sidebar">
                 <div className="overflow-y-auto overflow-x-hidden h-full py-4 px-3 bg-gray-50 rounded dark:bg-gray-800">
                     <ul className="space-y-2">
@@ -32,14 +32,14 @@ class AdminSidebar extends React.Component {
                         </li>
                         <li>
                             <a href="/cms/admin/messages"
-                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 opacity-disabled">
                                 <BellIcon className="w-5 h-5"/>
                                 <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Messages</span>
                             </a>
                         </li>
                         <li>
                             <a href="/cms/admin/users"
-                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 opacity-disabled">
                                 <UsersIcon className="w-5 h-5"/>
                                 <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Users</span>
                             </a>
@@ -68,8 +68,8 @@ class AdminSidebar extends React.Component {
                             </a>
                         </li>
                     </ul>
-                    <div className="absolute bottom-1">
-                        <p className="text-gray-500 italic text-xs text-ellipsis"><a href="https://github.com/PetrusTryb/PortCMS" target="_blank" rel="noreferrer">PortCMS<br/>v2.0</a></p>
+                    <div className="absolute bottom-0">
+                        <p className="text-gray-500 italic text-xs text-ellipsis"><a href="https://github.com/PetrusTryb/PortCMS" target="_blank" rel="noreferrer">v2.0</a></p>
                     </div>
                 </div>
             </aside>

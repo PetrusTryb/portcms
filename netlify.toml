@@ -9,6 +9,10 @@
   to = "/.netlify/functions/:splat"
   status = 200
 [[redirects]]
+  from = "/manifest.json"
+  to = "/.netlify/functions/config/"
+  status = 200
+[[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
@@ -19,4 +23,4 @@
     X-Frame-Options = "DENY"
     X-XSS-Protection = "1; mode=block"
     X-Content-Type-Options = "nosniff"
-    Content-Security-Policy = "default-src 'none'; script-src 'self'; connect-src 'self' ws://localhost:3000; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; manifest-src 'self'; frame-src https:"
+    Content-Security-Policy = "default-src 'none'; script-src 'self'; connect-src 'self' ws://localhost:3000 https:; img-src 'self' https: data:; style-src 'self' 'unsafe-inline'; frame-ancestors 'self'; form-action 'self'; manifest-src 'self'; frame-src https:"

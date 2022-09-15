@@ -2,6 +2,7 @@ import React from "react";
 import RecentPages from "./recentPages";
 import AllPages from "./allPages";
 import {DocumentAddIcon} from "@heroicons/react/solid";
+import Loader from "../components/loader";
 
 type pagesListState = {
     pages: Array<Page>,
@@ -23,13 +24,6 @@ export type Page ={
 }
 
 class AdminPagesList extends React.Component<{}, pagesListState> {
-    constructor(props: {}) {
-        super(props);
-        this.state = {
-            pages: [],
-            recentPages: [],
-        }
-    }
     componentDidMount() {
         this.fetchPagesList.then((data)=>{
             this.setState({
@@ -48,7 +42,8 @@ class AdminPagesList extends React.Component<{}, pagesListState> {
         };
         fetch(`/api/pages?url=*&lang=${preferredLanguage}`,{
             headers: {
-                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
+                'cache-control': 'no-cache',
             },
         }).then(res => res.json().then(response => {
             let recent = [...response]
@@ -65,6 +60,8 @@ class AdminPagesList extends React.Component<{}, pagesListState> {
         )
     })
     render() {
+        if(!this.state)
+            return <Loader/>
         return <div className="w-full h-full flex flex-col ml-16">
             <header className="bg-white dark:bg-gray-400 shadow border-b border-solid">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">

@@ -31,20 +31,24 @@ export default function Auth(Props: AuthProps) {
         }
         fetch("/api/auth", {
             method: "POST",
-            body: JSON.stringify(data)
+            body: JSON.stringify(data),
+            headers: {
+                "sec-ch-ua": navigator.platform,
+            }
             }
         ).then(res => res.json().then(data => {
             if(data.error){
-                setAuthError(data.error.errorMessage);
+                setAuthError("Wrong Answer!");
             }
             else{
+                setAuthError("Correct! Redirecting...");
                 if(formData.get("remember-me") === "on"){
                     localStorage.setItem("session", data.id);
                 }
                 else{
                     sessionStorage.setItem("session", data.id);
                 }
-                window.location.href = "/";
+                window.location.href = "/?forceReload=true";
             }
         })).catch(err => {
             console.error(err);

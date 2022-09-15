@@ -50,7 +50,7 @@ const handler: Handler = async (event) => {
                 body: JSON.stringify({
                     error: {
                         errorCode: 40001,
-                        errorMessage: "Invalid request body - no data provided."
+                        errorMessage: "Incorrect Format, Pls Try again!"
                     }
                 })
             }
@@ -94,7 +94,10 @@ const handler: Handler = async (event) => {
                 "sessions": [{
                     "id": randomUUID(),
                     "created": new Date(),
-                    "ip": event.headers['client-ip']
+                    "ip": event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'],
+                    "country": event.headers['x-country'],
+                    "browser": event.headers['sec-ch-ua'],
+                    "os": event.headers['sec-ch-ua-platform']
                 }],
                 "created": new Date(),
                 "updated": new Date(),
@@ -136,10 +139,14 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
+            console.log(event.headers)
             const session = {
                 "id": randomUUID(),
                 "created": new Date(),
-                "ip": event.headers['client-ip']
+                "ip": event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'],
+                "country": event.headers['x-country'],
+                "browser": event.headers['sec-ch-ua'],
+                "os": event.headers['sec-ch-ua-platform']
             }
             await db.collection('users').updateOne({
                 "_id": user._id
@@ -174,6 +181,135 @@ const handler: Handler = async (event) => {
                 $pull: {
                     "sessions": {
                         "id":session
+                    }
+                }
+            });
+            await mongoClient.close();
+            return {
+                statusCode: 200,
+                body: "{}"
+            }
+        }
+    }
+    if (event.httpMethod === 'PATCH') {
+        const user = await checkSession(mongoClient, session);
+        if (!user) {
+            await mongoClient.close();
+            return {
+                statusCode: 401,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40101,
+                        errorMessage: "Invalid session."
+                    }
+                })
+            }
+        }
+        if (!event.body){
+            await mongoClient.close();
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40001,
+                        errorMessage: "Incorrect Format, Pls Try again!"
+                    }
+                })
+            }
+        }
+        const data = JSON.parse(event.body);
+        if(data.mode==="update"){
+            if(!data.username || !data.email){
+                await mongoClient.close();
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40002,
+                            errorMessage: "No username or email provided."
+                        }
+                    })
+                }
+            }
+            const userCheck = await db.collection('users').findOne({
+                $or: [
+                    {username: data.username},
+                    {email: data.email}
+                ]
+            })
+            if (user._id.toString()!==userCheck?._id.toString()) {
+                await mongoClient.close();
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40003,
+                            errorMessage: "Username or email already in use."
+                        }
+                    })
+                }
+            }
+            await db.collection('users').updateOne({
+                "sessions.id": session
+            },{
+                $set: {
+                    "username": data.username,
+                    "email": data.email,
+                    "updated": new Date()
+                }
+            });
+            await mongoClient.close();
+            return {
+                statusCode: 200,
+                body: "{}"
+            }
+        }
+        if(data.mode==="changePassword") {
+            if (!data.password) {
+                await mongoClient.close();
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40002,
+                            errorMessage: "No password provided."
+                        }
+                    })
+                }
+            }
+            await db.collection('users').updateOne({
+                "sessions.id": session
+            }, {
+                $set: {
+                    "password": createHash("sha256").update(data.password).digest("hex"),
+                    "updated": new Date()
+                }
+            });
+            await mongoClient.close();
+            return {
+                statusCode: 200,
+                body: "{}"
+            }
+        }
+        if(data.mode==="endSession"){
+            if(!data.session){
+                await mongoClient.close();
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40002,
+                            errorMessage: "No session provided."
+                        }
+                    })
+                }
+            }
+            await db.collection('users').updateOne({
+                "sessions.id": session
+            },{
+                $pull: {
+                    "sessions": {
+                        "id":data.session
                     }
                 }
             });

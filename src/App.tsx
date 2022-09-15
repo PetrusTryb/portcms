@@ -38,11 +38,11 @@ class App extends React.Component<{}, {data: pageData}> {
         switch (st){
             case 50001:
                 ans.components[0].data = {
-                    title: 'Database connection error',
+                    title: 'Website temporarily unavailable',
                     message: msg,
                     primaryAction: {
                         label: 'Reload',
-                        onClick: () => window.location.reload()
+                        onClick: () => window.location.search = '?forceReload=true'
                     },
                     secondaryAction: {
                         label: 'Report issue',
@@ -75,39 +75,44 @@ class App extends React.Component<{}, {data: pageData}> {
                 break;
             case 40401:
                 ans.components[0].data = {
-                    title: 'Sorry, we are unable to display this page',
-                    message: msg,
+                    title: 'Invalid File Path',
+                    message: "Error 404 - Wrong Path and Filename, Please enter correctly!",
                     primaryAction: {
-                        label: 'Log in to admin panel',
+                        label: 'Admin panel',
                         onClick: () => window.location.href = "/cms/admin/"
                     },
                     secondaryAction:{
-                        label: 'Go to homepage',
-                        onClick: () => window.location.href = '/'
+                        label: 'Go Backward',
+                        onClick: () => window.history.go(-1)
                     }
                 }
                 break;
             case 50301:
                 ans.components[0].data = {
-                    title: "Website under maintenance",
+                    title: "Hello World",
                     message: msg,
                     primaryAction: {
-                        label: 'Disable maintenance mode',
-                        onClick: () => window.location.href = "/cms/admin/settings"
-                    },
-                    secondaryAction: {
                         label: 'Reload',
-                        onClick: () => window.location.reload()
-                    },
+                        onClick: () => window.location.search = '?forceReload=true'
+                    }
                 }
+                ans.components.push({
+                    id: 'Maintenance2',
+                    type: 'hero',
+                    data: {
+                        title: 'Error #50301',
+                        subtitle: 'Website\'s admin has enabled maintenance mode. Please try again later.',
+                        image: "https://images.unsplash.com/photo-1602983985772-b6950db87586?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=465&q=10",
+                    }
+                })
                 break;
             default:
                 ans.components[0].data = {
                     title: 'Error #'+st,
-                    message: "An error occurred while loading this page. Please try again later.",
+                    message: "An unknown error has occurred",
                     primaryAction: {
                         label: 'Reload',
-                        onClick: () => window.location.reload()
+                        onClick: () => window.location.search = '?forceReload=true'
                     },
                     secondaryAction: {
                         label: 'Ignore',
@@ -134,7 +139,7 @@ class App extends React.Component<{}, {data: pageData}> {
                 })
             }).then(res => res.json().then(response => {
                 if(!response.error) {
-                    document.location.href = '/';
+                    window.location.href = "/?forceReload=true";
                     localStorage.removeItem('session');
                     sessionStorage.removeItem('session');
                 }
@@ -144,26 +149,39 @@ class App extends React.Component<{}, {data: pageData}> {
             })).catch(err => {
                 resolve(this.error(1, err.message) as pageData);
             })
+            return;
         }
             fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`,{
                 headers: {
-                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
+                    'cache-control': window.location.search.includes('forceReload')?'no-cache':''
                 }
             }).then(res => res.json().then(data => {
                 if(data.error){
                     resolve(this.error(data.error.errorCode, data.error.errorMessage) as pageData);
                 }
+                if(window.location.search.includes('forceReload'))
+                    window.location.search = '';
                 resolve(data);
             })).catch(err => {
                 resolve(this.error(2, err.message) as pageData);
             });
     })
     componentDidMount() {
-        this.fetchData.then(data => this.setState({data}));
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register("/sw.js",{
+                scope: '/'
+            }).then(r => {
+                console.log("Service worker registered!",r.scope);
+                this.fetchData.then(data => this.setState({data}));
+            });
+        }
+        else
+            this.fetchData.then(data => this.setState({data}));
     }
     render() {
         if(this.state.data._id==="WAIT")
-            return <Loader loading={true}/>;
+            return <Loader/>;
         else {
             document.title=`${this.state.data.metadata?.title||this.state.data.url||this.state.data._id} | ${this.state.data.metadata?.websiteTitle||document.location.hostname}`
             if (this.state.data.metadata?.description)

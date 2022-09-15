@@ -1,7 +1,7 @@
 import {MongoClient} from "mongodb";
 async function connectToDatabase(){
     if (process.env.MONGODB_URL === undefined)
-        throw new Error("MONGODB_URL environment variable is not set. Please set it to the correct value.")
+        throw new Error("MONGODB_URL environment variable is not set. Please set .env file in the root directory of the project that will be read by Environment File Reader.");
     const mongoClient = new MongoClient(process.env.MONGODB_URL, {});
     await mongoClient.connect();
     return mongoClient
@@ -18,7 +18,9 @@ async function checkSession(mongoClient:MongoClient, session?:string){
         },{
             projection: {
                 username: 1,
+                email: 1,
                 roles: 1,
+                sessions: 1
             }
         }
     );

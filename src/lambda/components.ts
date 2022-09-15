@@ -2,7 +2,7 @@ import {Handler} from '@netlify/functions'
 import {MongoClient, ObjectId} from "mongodb";
 import {checkSession, connectToDatabase} from "./mongoHelper";
 
-const handler: Handler = async (event, context) => {
+const handler: Handler = async (event) => {
     let mongoClient:MongoClient;
     try {
         mongoClient = await connectToDatabase();
@@ -92,8 +92,8 @@ const handler: Handler = async (event, context) => {
                 })
             }
         }
-        newComponent.position = new Date().getTime();
-        newComponent.id = new ObjectId();
+        newComponent.position = new Date().getTime(); //using timestamp as last position
+        newComponent.id = new ObjectId(); //random object id
         await db.collection("pages").updateOne({_id: new ObjectId(pageId)}, {
             $push: {components: newComponent},
             $set: {"metadata.updatedAt": new Date(), "metadata.updatedBy": user._id}
@@ -148,7 +148,7 @@ const handler: Handler = async (event, context) => {
         await mongoClient.close();
         return {
             statusCode: 200,
-            body: JSON.stringify({componentId: componentId})
+            body: "File Written"
         }
     }
     if(event.httpMethod === "PATCH"){

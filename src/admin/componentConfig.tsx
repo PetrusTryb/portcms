@@ -62,7 +62,7 @@ class ComponentConfig extends React.Component<ComponentConfigProps,ComponentConf
             body: JSON.stringify(payload)
         }).then((response)=>{
             if(response.ok){
-                window.location.reload()
+                window.location.search = "forceReload=true";
             }
         }).catch((reason)=>{
             console.error(reason)

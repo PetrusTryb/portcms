@@ -1,8 +1,7 @@
 import React from "react";
 
-type loaderProps = {
-    loading: boolean,
-}
+type loaderProps = {}
+
 type loaderState = {
     startTime: number,
     currentTime: number,
@@ -17,7 +16,7 @@ class Loader extends React.Component<loaderProps,loaderState>{
         }
     }
     componentDidMount() {
-        this.setState({interval:window.setInterval(() => this.setState({ currentTime: Date.now() }), 1000)});
+        this.setState({interval:window.setInterval(() => this.setState({ currentTime: Date.now() }), 500)});
     }
     componentWillUnmount() {
         clearInterval(this.state.interval);
@@ -26,11 +25,9 @@ class Loader extends React.Component<loaderProps,loaderState>{
         return Math.round((Date.now() - this.state.startTime)/ 1000);
     }
     render() {
-        const loading = this.props.loading;
-        if(loading)
-            return <div className="flex justify-center items-center mt-36">
-                <div role="status">
-                    <svg className="inline w-32 h-32 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
+            return <div>
+                <div role="status" className="justify-center grid content-center mt-36">
+                    <svg className="w-32 h-32 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600"
                          viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
@@ -40,12 +37,10 @@ class Loader extends React.Component<loaderProps,loaderState>{
                             fill="currentFill"/>
                     </svg>
                 </div>
-                <p className="flex-row text-center text-[#cb1ed1] text-sm ml-1 italic">
-                    {this.howMuchTimePassed()>=5&&`Warning: it seems that the server is taking too long to respond.`}
+                <p className="justify-center grid content-center mt-10 dark:text-gray-400">
+                    {this.howMuchTimePassed()>=0.5&&`Good things take time...`}
                 </p>
             </div>
-        else
-            return null;
     }
 }
 

@@ -1,0 +1,4 @@
+Contact: https://github.com/PetrusTryb/portcms/issues
+Contact: mailto:ptrybisz@gmail.com
+Expires: 2025-01-01T21:37:00.000Z
+Preferred-Languages: pl, en

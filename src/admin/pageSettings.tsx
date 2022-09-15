@@ -48,7 +48,8 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
         } else if (this.state.pageId) {
             fetch(`/api/pages/?id=${this.state.pageId}`, {
                 headers: {
-                    'session': localStorage.getItem('session') || sessionStorage.getItem('session') || ''
+                    'session': localStorage.getItem('session') || sessionStorage.getItem('session') || '',
+                    'cache-control': 'no-cache',
                 },
             }).then(res => res.json().then(response => {
                 if (!response.error) {
@@ -138,7 +139,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                         <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400 inline">
                                 <ArchiveIcon className="mr-2 h-5 w-5 text-accent inline"/>
-                                Metadata
+                                {!this.state.pageId?"Please Fill All data before adding page":"Page properties"}
                             </h3>
                         </div>
                         <form onSubmit={this.submit}>

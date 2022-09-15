@@ -18,24 +18,11 @@ const handler: Handler = async (event) => {
     }
     const db = mongoClient.db("portCMS");
     const user = await checkSession(mongoClient, event.headers["session"]);
-    if (!user?.roles.includes("admin")) {
-        await mongoClient.close();
-        return {
-            statusCode: 403,
-            body: JSON.stringify({
-                error: {
-                    errorCode: 40301,
-                    errorMessage: "You have insufficient permissions."
-                }
-            })
-        }
-    }
     if(event.httpMethod==="GET"){
-        const data = await db.collection("pages").findOne({"url":"*"},
-            {projection:{
-                url:0,
-                _id:0
-            }});
+        let data = await db.collection("pages").findOne({"url":"*"},
+            {"projection": {"_id": 0, "url": 0}});
+        if(!user?.roles.includes("admin")&&data)
+            data = data["manifest"];
         await mongoClient.close();
         return {
             statusCode: 200,
@@ -43,11 +30,24 @@ const handler: Handler = async (event) => {
         }
     }
     if(event.httpMethod==="POST"){
+        if (!user?.roles.includes("admin")) {
+            await mongoClient.close();
+            return {
+                statusCode: 403,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40301,
+                        errorMessage: "You have insufficient permissions. File do not Written."
+                    }
+                })
+            }
+        }
         const data = JSON.parse(event.body||"{}")
         await db.collection("pages").updateOne({"url":"*"},{$set:data},{upsert:true})
         await mongoClient.close()
         return {
-            statusCode: 204
+            statusCode: 200,
+            body: "File Written"
         }
     }
     await mongoClient.close();

@@ -16,6 +16,11 @@ module.exports = {
       },
       height: {
         "36px": "36px",
+      },
+      screens: {
+        "md": "990px",
+        "lg": "1200px",
+        "xl": "1600px",
       }
     },
   },

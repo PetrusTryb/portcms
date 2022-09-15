@@ -73,8 +73,8 @@ class Navbar extends React.Component<NavbarProps, {}> {
                                                     key={item.name}
                                                     href={item.url}
                                                     className={this.classNames(
-                                                        item.url===currentPage ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
-                                                        'px-3 py-2 rounded-md text-sm font-medium'
+                                                        item.url===currentPage ? 'bg-gray-900 text-white transition-colors duration-500' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                                        'px-3 py-2 rounded-md text-sm font-medium transition-colors duration-500'
                                                     )}
                                                     aria-current={item.url===currentPage ? 'page' : undefined}
                                                 >
@@ -103,10 +103,10 @@ class Navbar extends React.Component<NavbarProps, {}> {
                                         </div>
                                         <Transition
                                             as={Fragment}
-                                            enter="transition ease-out duration-100"
+                                            enter="transition ease-out duration-500"
                                             enterFrom="transform opacity-0 scale-95"
                                             enterTo="transform opacity-100 scale-100"
-                                            leave="transition ease-in duration-75"
+                                            leave="transition ease-in duration-500"
                                             leaveFrom="transform opacity-100 scale-100"
                                             leaveTo="transform opacity-0 scale-95"
                                         >
@@ -131,16 +131,6 @@ class Navbar extends React.Component<NavbarProps, {}> {
                                                                     className={this.classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-400')}
                                                                 >
                                                                     Your Profile
-                                                                </a>
-                                                            )}
-                                                        </Menu.Item>
-                                                        <Menu.Item>
-                                                            {({ active }) => (
-                                                                <a
-                                                                    href="/cms/settings"
-                                                                    className={this.classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-gray-700 dark:text-gray-400')}
-                                                                >
-                                                                    Settings
                                                                 </a>
                                                             )}
                                                         </Menu.Item>
@@ -182,7 +172,7 @@ class Navbar extends React.Component<NavbarProps, {}> {
                                         as="a"
                                         href={item.url}
                                         className={this.classNames(
-                                            item.url===currentPage ? 'bg-gray-900 text-white' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
+                                            item.url===currentPage ? 'bg-gray-900 text-white0' : 'text-gray-300 hover:bg-gray-700 hover:text-white',
                                             'block px-3 py-2 rounded-md text-base font-medium'
                                         )}
                                         aria-current={item.url===currentPage ? 'page' : undefined}

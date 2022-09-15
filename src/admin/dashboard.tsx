@@ -2,6 +2,7 @@ import React from "react";
 import StatusMessages, {StatusMessage} from "./statusMessages";
 import RecentPages from "./recentPages";
 import {Page} from "./pages";
+import Loader from "../components/loader";
 
 type dashboardState = {
     username: string,
@@ -19,7 +20,8 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
         }
         fetch('/api/auth',{
             headers: {
-                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
+                'cache-control': 'no-cache',
             },
         }).then(res => res.json().then(response => {
             if(!response.error && response.roles?.includes('admin'))
@@ -28,7 +30,8 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                 document.location.href = '/cms/login';
             fetch(`/api/pages?url=*&lang=${preferredLanguage}`,{
                 headers: {
-                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||''
+                    'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
+                    'cache-control': 'no-cache',
                 }
             }).then(res => res.json().then(response => {
                 if(!response.error) {
@@ -108,7 +111,7 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
     }
     render() {
         if(!this.state)
-            return null;
+            return <Loader/>;
         return <div className="w-full h-full flex flex-col ml-16">
             <header className="bg-neutral-100 dark:bg-gray-400 shadow-[0_0_4px_rgba(0,0,0,0.0884)]">
                 <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">

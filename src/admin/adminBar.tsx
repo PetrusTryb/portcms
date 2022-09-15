@@ -44,7 +44,7 @@ class AdminBar extends React.Component<AdminBarProps, AdminBarState> {
                 })
             }).then(res => res.json().then(response => {
                 if(!response.error) {
-                    document.location.reload();
+                    document.location.search = "forceReload=true";
                 }
                 else {
                     console.error(response.error);

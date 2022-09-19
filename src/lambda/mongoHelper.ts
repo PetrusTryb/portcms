@@ -1,14 +1,13 @@
-import {MongoClient} from "mongodb";
+import {Db, MongoClient} from "mongodb";
+if (process.env.MONGODB_URL === undefined)
+    throw new Error("MONGODB_URL environment variable is not set. Please set .env file in the root directory of the project that will be read by Environment File Reader.");
+const mongoClient = new MongoClient(process.env.MONGODB_URL, {});
+const connectPromise = mongoClient.connect();
 async function connectToDatabase(){
-    if (process.env.MONGODB_URL === undefined)
-        throw new Error("MONGODB_URL environment variable is not set. Please set .env file in the root directory of the project that will be read by Environment File Reader.");
-    const mongoClient = new MongoClient(process.env.MONGODB_URL, {});
-    await mongoClient.connect();
-    return mongoClient
+    return (await connectPromise).db(process.env.MONGODB_DB_NAME||"portCMS");
 }
-async function checkSession(mongoClient:MongoClient, session?:string){
+async function checkSession(db:Db, session?:string){
     if(!session) return null;
-    const db = mongoClient.db("portCMS");
     const user = await db.collection('users').findOne(
         {
             sessions:

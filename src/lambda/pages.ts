@@ -1,12 +1,14 @@
-import { Handler } from '@netlify/functions'
-import {MongoClient, ObjectId} from "mongodb";
+import {Handler} from '@netlify/functions'
+import {Db} from "mongodb";
 import {checkSession, connectToDatabase} from "./mongoHelper";
 import localise from "./localisationHelper";
+import {WebsiteConfig} from "../classes/config";
+import {Page} from "../classes/page";
 
 const handler: Handler = async (event) => {
-    let mongoClient:MongoClient;
+    let db:Db;
     try {
-        mongoClient = await connectToDatabase();
+        db = await connectToDatabase();
     }catch{
         return {
             statusCode: 500,
@@ -18,10 +20,8 @@ const handler: Handler = async (event) => {
             })
         }
     }
-    const db = mongoClient.db("portCMS");
     // Installation check - database exists
     if (!(await db.listCollections().toArray()).find(c => c.name === "users")) {
-        await mongoClient.close();
         return {
             statusCode: 500,
             body: JSON.stringify({
@@ -35,11 +35,11 @@ const handler: Handler = async (event) => {
     const pageUrl = event.queryStringParameters?.url;
     const preferredLanguage = event.queryStringParameters?.lang;
     const id = event.queryStringParameters?.id;
-    const user = await checkSession(mongoClient, event.headers["session"]);
+    const user = await checkSession(db, event.headers["session"]);
     if (event.httpMethod === 'GET') {
+        const globalConfig = await WebsiteConfig.getCurrentConfig(db);
         if (id) {
             if (!user?.roles.includes("admin")) {
-                await mongoClient.close();
                 return {
                     statusCode: 403,
                     body: JSON.stringify({
@@ -50,9 +50,8 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            const page = await db.collection("pages").findOne({_id: new ObjectId(id)});
+            const page = await Page.getById(id, db);
             if (!page) {
-                await mongoClient.close();
                 return {
                     statusCode: 404,
                     body: JSON.stringify({
@@ -63,7 +62,6 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: JSON.stringify(page)
@@ -71,7 +69,6 @@ const handler: Handler = async (event) => {
         }
         else if(pageUrl==="*"){
             if (!user?.roles.includes("admin")) {
-                await mongoClient.close();
                 return {
                     statusCode: 403,
                     body: JSON.stringify({
@@ -83,31 +80,28 @@ const handler: Handler = async (event) => {
                 }
             }
             else {
-                const pages = await db.collection('pages').find().toArray();
-                await mongoClient.close();
+                const pages = await Page.getAll(db);
+                let globalConfig = await WebsiteConfig.getCurrentConfig(db);
                 let result = pages;
+                let translatedResult = null;
                 if(preferredLanguage){
-                    result = pages.map(p=>{
-                        p.metadata.title = localise(p.metadata.title, preferredLanguage);
-                        p.metadata.description = localise(p.metadata.description, preferredLanguage);
-                        return p;
+                    translatedResult = pages.map(p=>{
+                        return p.toTranslatedObject(preferredLanguage, localise(globalConfig.metadata.title, preferredLanguage));
                     });
                 }
                 return {
                     statusCode: 200,
-                    body: JSON.stringify(result)
+                    body: JSON.stringify(translatedResult || result),
+                    headers: {
+                        "x-maintenance-mode": globalConfig.visible ? "false" : "true",
+                        "x-user-name": user.username,
+                        "x-last-login": user.sessions[user.sessions.length-1].created.toISOString(),
+                    }
                 }
             }
         }else {
-            const page = await db.collection('pages').findOne({"url": pageUrl});
-            const globalConfig = await db.collection('pages').findOne({"url":"*"});
-            let allPages = await db.collection('pages').find({"visible":true},{projection:{
-                    "url":1,
-                    "metadata.title":1,
-                    "_id":1,
-                    "position":1,
-                }}).toArray();
-            await mongoClient.close();
+            const page = await Page.getByUrl(pageUrl||"/", db);
+            let allPages = await Page.getAll(db);
             if (!page) {
                 return {
                     statusCode: 404,
@@ -119,7 +113,7 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            if(globalConfig?.serviceMode && !user?.roles.includes("admin")){
+            if(!globalConfig?.visible && !user?.roles.includes("admin")){
                 return {
                     statusCode: 503,
                     body: JSON.stringify({
@@ -132,44 +126,16 @@ const handler: Handler = async (event) => {
             }
             if(page.visible || user?.roles.includes("admin")){
                 let result = page;
-                if(preferredLanguage){
-                    result = {
-                        ...page,
-                        metadata: {
-                            ...page.metadata,
-                            title: localise(page.metadata.title, preferredLanguage),
-                            description: localise(page.metadata.description, preferredLanguage),
-                            websiteTitle: localise(globalConfig?.metadata?.title, preferredLanguage)
-                        }
-                    }
-                }
-                allPages = allPages.sort((a, b) => a.position - b.position);
-                let nav = {
-                    "id": "nav",
-                    "type": "navbar",
-                    "data": {
-                        "pages": allPages.map(p=>{
-                            return {
-                                "id": p._id,
-                                "url": p.url,
-                                "name": localise(p.metadata.title, preferredLanguage||"default")
-                            }
-                        }),
-                        "user": user,
-                        "logo": globalConfig?.metadata.logo,
-                        "smallLogo": globalConfig?.metadata.smallLogo
-                    }
-                }
-                if(result.components.length>0) {
-                    result.components = result.components.sort((a:any, b:any) => a.position - b.position);
-                    result.components = [nav, ...result.components];
-                }
-                else
-                    result.components = [nav];
+                page.sortComponents();
+                page.addNavComponent(allPages, preferredLanguage||"default", user, globalConfig?.metadata.logo, globalConfig?.metadata.smallLogo);
                 result.userData = user;
+                let translatedResult = null;
+                if(preferredLanguage){
+                    translatedResult = page.toTranslatedObject(preferredLanguage, localise(globalConfig.metadata.title, preferredLanguage));
+                }
                 return {
                     statusCode: 200,
-                    body: JSON.stringify(result)
+                    body: JSON.stringify(translatedResult || result)
                 }
             }
             return {
@@ -185,7 +151,6 @@ const handler: Handler = async (event) => {
     }
     if (event.httpMethod === 'PUT') {
         if (!user?.roles.includes("admin")) {
-            await mongoClient.close();
             return {
                 statusCode: 403,
                 body: JSON.stringify({
@@ -197,7 +162,6 @@ const handler: Handler = async (event) => {
             }
         }
         if(!event.body){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -210,7 +174,6 @@ const handler: Handler = async (event) => {
         }
         const page = JSON.parse(event.body);
         if(!page.url||!page.title){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -221,9 +184,8 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const pages = await db.collection('pages').find({"url": page.url}).toArray();
-        if(pages.length>0){
-            await mongoClient.close();
+        const pages = await Page.getByUrl(page.url, db);
+        if(pages){
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -234,33 +196,14 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        let pageData = {
-            url: page.url,
-            metadata: {
-                title: page.title,
-                description: page.description,
-                createdAt: new Date(),
-                createdBy: user._id,
-                updatedAt: new Date(),
-                updatedBy: user._id
-            },
-            components: [],
-            visible: page.visible,
-            position: new Date().valueOf()
-        }
-        const instance = await db.collection('pages').insertOne(pageData);
-        await mongoClient.close();
+        let pageData = new Page(page.url, {title: page.title, description:page.description}, page.visible);
+        await pageData.save(db, user._id);
         return {
-            statusCode: 200,
-            body: JSON.stringify({
-                worked: instance.acknowledged,
-                insertedId: instance.insertedId
-            })
+            statusCode: 200
         }
     }
     if (event.httpMethod === 'POST'){
         if (!user?.roles.includes("admin")) {
-            await mongoClient.close();
             return {
                 statusCode: 403,
                 body: JSON.stringify({
@@ -273,7 +216,6 @@ const handler: Handler = async (event) => {
         }
         const page = JSON.parse(event.body||"{}");
         if(!page.id){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -284,33 +226,49 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const pageData = {
-            url: page.url,
-            metadata: {
-                title: page.title,
-                description: page.description,
-                updatedAt: new Date(),
-                updatedBy: user._id
-            },
-            visible: page.visible
+        const oldPage = await Page.getById(page.id, db);
+        if(!oldPage){
+            return {
+                statusCode: 404,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40402,
+                        errorMessage: "Could not find page with id " + page.id
+                    }
+                })
+            }
         }
-        const instance = await db.collection('pages').updateOne(
-            {_id: new ObjectId(page.id)},
-            {$set: pageData},
-            {upsert: false}
-            );
-        await mongoClient.close();
+        if(page.url){
+            const pages = await Page.getByUrl(page.url, db);
+            if(pages && pages._id.toString()!==page.id){
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40003,
+                            errorMessage: "Page with this url already exists."
+                        }
+                    })
+                }
+            }
+            oldPage.url = page.url;
+        }
+        if(page.title){
+            oldPage.metadata.title = page.title;
+        }
+        if(page.description){
+            oldPage.metadata.description = page.description;
+        }
+        if(page.visible!==undefined){
+            oldPage.visible = page.visible;
+        }
+        await oldPage.save(db, user._id);
         return {
-            statusCode: 200,
-            body: JSON.stringify({
-                worked: instance.acknowledged,
-                updatedId: page.id
-            })
+            statusCode: 200
         }
     }
     if (event.httpMethod === 'PATCH'){
         if (!user?.roles.includes("admin")) {
-            await mongoClient.close();
             return {
                 statusCode: 403,
                 body: JSON.stringify({
@@ -323,22 +281,26 @@ const handler: Handler = async (event) => {
         }
         const data = JSON.parse(event.body||"{}");
         if(data.id){
-            const instance = await db.collection('pages').updateOne(
-                {_id: new ObjectId(data.id)},
-                {$set: {visible: data.visible}},
-                {upsert: false}
-                );
-            await mongoClient.close();
+            let instance = await Page.getById(data.id, db);
+            if(!instance){
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40402,
+                            errorMessage: "Could not find page with id " + data.id
+                        }
+                    })
+                }
+            }
+            instance.visible = data.visible;
+            await instance.save(db, user._id);
             return {
                 statusCode: 200,
-                body: JSON.stringify({
-                    worked: instance.acknowledged,
-                    updatedId: data.id
-                })
+                body: "{}"
             }
         }
         else if(!data.id1||!data.id2){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -349,10 +311,9 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const leftPage = await db.collection("pages").findOne({_id: new ObjectId(data.id1)});
-        const rightPage = await db.collection("pages").findOne({_id: new ObjectId(data.id2)});
+        const leftPage = await Page.getById(data.id1, db);
+        const rightPage = await Page.getById(data.id2, db);
         if (!leftPage || !rightPage) {
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -364,28 +325,17 @@ const handler: Handler = async (event) => {
             }
         }
         const leftPosition = leftPage.position;
-        const rightPosition = rightPage.position;
-        await db.collection("pages").updateOne(
-            {_id: new ObjectId(data.id1)},
-            {$set: {position: rightPosition}}
-        );
-        await db.collection("pages").updateOne(
-            {_id: new ObjectId(data.id2)},
-            {$set: {position: leftPosition}}
-        );
-        await mongoClient.close();
+        leftPage.position = rightPage.position;
+        rightPage.position = leftPosition;
+        await leftPage.save(db, user._id);
+        await rightPage.save(db, user._id);
         return {
             statusCode: 200,
-            body: JSON.stringify({
-                worked: true,
-                updatedId: data.id1,
-                updatedId2: data.id2
-            })
+            body: "{}"
         }
     }
     if (event.httpMethod === 'DELETE'){
         if (!user?.roles.includes("admin")) {
-            await mongoClient.close();
             return {
                 statusCode: 403,
                 body: JSON.stringify({
@@ -398,7 +348,6 @@ const handler: Handler = async (event) => {
         }
         const pageId = JSON.parse(event.body||"{}").id;
         if(!pageId){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -409,17 +358,23 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const instance = await db.collection('pages').deleteOne({_id: new ObjectId(pageId)});
-        await mongoClient.close();
+        const instance = await Page.getById(pageId, db);
+        if(!instance){
+            return {
+                statusCode: 404,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40402,
+                        errorMessage: "Could not find page with id " + pageId
+                    }
+                })
+            }
+        }
+        await instance.delete(db);
         return {
-            statusCode: 200,
-            body: JSON.stringify({
-                worked: instance.acknowledged,
-                deletedId: pageId
-            })
+            statusCode: 200
         }
     }
-    await mongoClient.close();
     return {
         statusCode: 400
     }

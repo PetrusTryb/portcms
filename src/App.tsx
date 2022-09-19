@@ -74,18 +74,7 @@ class App extends React.Component<{}, {data: pageData}> {
             ]
                 break;
             case 40401:
-                ans.components[0].data = {
-                    title: 'Invalid File Path',
-                    message: "Error 404 - Wrong Path and Filename, Please enter correctly!",
-                    primaryAction: {
-                        label: 'Admin panel',
-                        onClick: () => window.location.href = "/cms/admin/"
-                    },
-                    secondaryAction:{
-                        label: 'Go Backward',
-                        onClick: () => window.history.go(-1)
-                    }
-                }
+                document.location.href = '/cms/404/'
                 break;
             case 50301:
                 ans.components[0].data = {
@@ -94,6 +83,10 @@ class App extends React.Component<{}, {data: pageData}> {
                     primaryAction: {
                         label: 'Reload',
                         onClick: () => window.location.search = '?forceReload=true'
+                    },
+                    secondaryAction: {
+                        label: 'Log in',
+                        onClick: () => window.location.href = '/cms/login/'
                     }
                 }
                 ans.components.push({
@@ -109,7 +102,7 @@ class App extends React.Component<{}, {data: pageData}> {
             default:
                 ans.components[0].data = {
                     title: 'Error #'+st,
-                    message: "An unknown error has occurred",
+                    message: msg,
                     primaryAction: {
                         label: 'Reload',
                         onClick: () => window.location.search = '?forceReload=true'
@@ -151,10 +144,14 @@ class App extends React.Component<{}, {data: pageData}> {
             })
             return;
         }
+            const lastReload = sessionStorage.getItem('lastReload')?.split(';').includes(currentPage);
+            const shouldReload = window.location.search.includes('forceReload=true') || !lastReload;
+            if(shouldReload)
+                sessionStorage.setItem('lastReload', (sessionStorage.getItem('lastReload')||'') + currentPage + ';');
             fetch(`/api/pages/?url=${currentPage}&lang=${preferredLanguage}`,{
                 headers: {
                     'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
-                    'cache-control': window.location.search.includes('forceReload')?'no-cache':''
+                    'cache-control': shouldReload?'no-cache':''
                 }
             }).then(res => res.json().then(data => {
                 if(data.error){

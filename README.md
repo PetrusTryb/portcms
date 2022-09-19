@@ -1,6 +1,10 @@
-# PortCMS v2.0
+# PortCMS
 
-Simple CMS for portfolios - second version.
+#### Fast & simple Content Management System for portfolio pages - second version
+
+![Netlify](https://img.shields.io/netlify/5bb9fdd7-127e-4a2d-8b43-b3098d36e02d?style=for-the-badge)
+![Mozilla HTTP Observatory Grade](https://img.shields.io/mozilla-observatory/grade/ptrybisz.tk?publish&style=for-the-badge)
+![Version](https://img.shields.io/badge/Version-2.0-red?style=for-the-badge)
 
 ## Features (roadmap)
 #### 🎉 Project milestone 2.0 completed!
@@ -33,7 +37,6 @@ Simple CMS for portfolios - second version.
     - [x] Progressive Web App
     - [x] Service mode
   - [ ] Logs [*planned for v2.3a*]
-  - [ ] Help
   - [x] About
 - [ ] UI localisation [*planned for v2.4a*]
 - [ ] Advanced user permissions management (roles etc.) [*planned for v2.5a*]

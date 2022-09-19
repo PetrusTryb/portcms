@@ -1,6 +1,6 @@
 import LocalizedStringEditor, {localizedString} from "../util/localizedString";
 import React from "react";
-import {ArchiveIcon} from "@heroicons/react/solid";
+import {DocumentTextIcon} from "@heroicons/react/solid";
 import Modal from "../components/modal";
 
 interface PageSettingsProps {
@@ -91,6 +91,16 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
         })
     }
 
+    generateRandomUrl = () => {
+        const url = btoa(Math.random().toString()).slice(5, 13);
+        this.setState({
+            pageData: {
+                ...this.state.pageData,
+                url: url,
+            }
+        })
+    }
+
     render() {
         return <div className="w-full h-full flex flex-col ml-16">
             <Modal id="DEL" type="modal" data={{
@@ -138,7 +148,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                     <div className="bg-white dark:bg-gray-800 sm:rounded-lg shadow-[0_1px_1px_0_rgba(0,0,0,0.12)]">
                         <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                             <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400 inline">
-                                <ArchiveIcon className="mr-2 h-5 w-5 text-accent inline"/>
+                                <DocumentTextIcon className="mr-2 h-5 w-5 inline"/>
                                 {!this.state.pageId?"Please Fill All data before adding page":"Page properties"}
                             </h3>
                         </div>
@@ -152,9 +162,11 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                         </label>
                                         <div className="mt-1 rounded-md shadow-sm">
                                             <input id="url" name="url" defaultValue={this.state.pageData?.url}
-                                                   className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
+                                                   className="form-input inline-flex w-10/12 dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
+                                            <button type="button" onClick={this.generateRandomUrl}
+                                                className="inline-flex items-center w-2/12 py-2 rounded-r-md border border-r-0 border-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-900 px-3 text-sm text-gray-500">Random</button>
                                             <label htmlFor="url"
-                                                   className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                                   className="text-sm italic h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Relative URL to the page.
                                                 Example: <code>/</code>, <code>/about/</code>, <code>/contact/</code>
                                             </label>
@@ -178,7 +190,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                                 })
                                             }}/>
                                             <label
-                                                className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                                className="text-sm italic h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Title will be shown in browser's title bar and navbar
                                             </label>
                                         </div>
@@ -200,7 +212,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                                                        }
                                                                    })}/>
                                             <label
-                                                className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                                className="text-sm italic h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Will be shown in search engines, about 150-160 chars
                                             </label>
                                         </div>

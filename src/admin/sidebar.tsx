@@ -4,8 +4,7 @@ import {
     UsersIcon,
     CogIcon,
     ExternalLinkIcon,
-    LogoutIcon,
-    BellIcon
+    LogoutIcon
 } from '@heroicons/react/solid';
 import React from "react";
 
@@ -31,15 +30,8 @@ class AdminSidebar extends React.Component {
                             </a>
                         </li>
                         <li>
-                            <a href="/cms/admin/messages"
-                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 opacity-disabled">
-                                <BellIcon className="w-5 h-5"/>
-                                <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Messages</span>
-                            </a>
-                        </li>
-                        <li>
                             <a href="/cms/admin/users"
-                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 opacity-disabled">
+                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <UsersIcon className="w-5 h-5"/>
                                 <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Users</span>
                             </a>
@@ -68,9 +60,6 @@ class AdminSidebar extends React.Component {
                             </a>
                         </li>
                     </ul>
-                    <div className="absolute bottom-0">
-                        <p className="text-gray-500 italic text-xs text-ellipsis"><a href="https://github.com/PetrusTryb/PortCMS" target="_blank" rel="noreferrer">v2.0</a></p>
-                    </div>
                 </div>
             </aside>
         )

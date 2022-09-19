@@ -1,10 +1,12 @@
 import { Handler } from '@netlify/functions'
-import {MongoClient} from "mongodb";
+import {Db} from "mongodb";
 import {checkSession, connectToDatabase} from "./mongoHelper";
+import {WebsiteConfig} from "../classes/config";
+
 const handler: Handler = async (event) => {
-    let mongoClient: MongoClient;
+    let db:Db;
     try {
-        mongoClient = await connectToDatabase();
+        db = await connectToDatabase();
     } catch {
         return {
             statusCode: 500,
@@ -16,14 +18,14 @@ const handler: Handler = async (event) => {
             })
         }
     }
-    const db = mongoClient.db("portCMS");
-    const user = await checkSession(mongoClient, event.headers["session"]);
+    const user = await checkSession(db, event.headers["session"]);
     if(event.httpMethod==="GET"){
-        let data = await db.collection("pages").findOne({"url":"*"},
-            {"projection": {"_id": 0, "url": 0}});
+        let data = await WebsiteConfig.getCurrentConfig(db);
         if(!user?.roles.includes("admin")&&data)
-            data = data["manifest"];
-        await mongoClient.close();
+            return {
+                statusCode: 200,
+                body: data.renderManifest()
+            }
         return {
             statusCode: 200,
             body: JSON.stringify(data||{})
@@ -31,7 +33,6 @@ const handler: Handler = async (event) => {
     }
     if(event.httpMethod==="POST"){
         if (!user?.roles.includes("admin")) {
-            await mongoClient.close();
             return {
                 statusCode: 403,
                 body: JSON.stringify({
@@ -43,14 +44,31 @@ const handler: Handler = async (event) => {
             }
         }
         const data = JSON.parse(event.body||"{}")
-        await db.collection("pages").updateOne({"url":"*"},{$set:data},{upsert:true})
-        await mongoClient.close()
+        if(!data.metadata||!data.pwa){
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40001,
+                        errorMessage: "Invalid data."
+                    }
+                })
+            }
+        }
+        const config = await WebsiteConfig.getCurrentConfig(db);
+        config.metadata.title = data.metadata.title;
+        config.metadata.logo = data.metadata.logo;
+        config.metadata.smallLogo = data.metadata.smallLogo;
+        config.pwa.name = data.pwa.name;
+        config.pwa.shortName = data.pwa.short_name;
+        config.pwa.displayMode = data.pwa.display;
+        config.pwa.icons = data.pwa.icons;
+        config.visible = data.visible;
+        await config.save(db);
         return {
-            statusCode: 200,
-            body: "File Written"
+            statusCode: 200
         }
     }
-    await mongoClient.close();
     return {
         statusCode: 400
     }

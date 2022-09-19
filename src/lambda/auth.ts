@@ -1,12 +1,12 @@
 import { Handler } from '@netlify/functions'
-import {MongoClient} from "mongodb";
+import {Db} from "mongodb";
 import {connectToDatabase, checkSession} from "./mongoHelper";
 import {createHash, randomUUID} from "crypto";
 
 const handler: Handler = async (event) => {
-    let mongoClient:MongoClient;
+    let db:Db;
     try {
-        mongoClient = await connectToDatabase();
+        db = await connectToDatabase();
     }catch{
         return {
             statusCode: 500,
@@ -18,12 +18,10 @@ const handler: Handler = async (event) => {
             })
         }
     }
-    const db = mongoClient.db("portCMS");
     const session = event.headers["session"];
     if (event.httpMethod === 'GET') {
-        const user = await checkSession(mongoClient, session);
+        const user = await checkSession(db, session);
         if (!user) {
-            await mongoClient.close();
             return {
                 statusCode: 401,
                 body: JSON.stringify({
@@ -35,7 +33,6 @@ const handler: Handler = async (event) => {
             }
         }
         else{
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: JSON.stringify(user)
@@ -44,7 +41,6 @@ const handler: Handler = async (event) => {
     }
     if (event.httpMethod === 'POST') {
        if (!event.body){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -58,7 +54,6 @@ const handler: Handler = async (event) => {
         const data = JSON.parse(event.body);
         if(data.mode==="register"){
             if(!data.username || !data.password || !data.email){
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -76,7 +71,6 @@ const handler: Handler = async (event) => {
                 ]
             })
             if (user) {
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -104,7 +98,6 @@ const handler: Handler = async (event) => {
                 "roles": await db.collection('users').countDocuments()===0 ? ["admin"] : ["user"],
             }
             await db.collection('users').insertOne(newUser);
-            await mongoClient.close();
             return {
                 statusCode: 201,
                 body: JSON.stringify(newUser.sessions[0])
@@ -112,7 +105,6 @@ const handler: Handler = async (event) => {
         }
         if(data.mode==="login"){
             if(!data.email || !data.password){
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -128,7 +120,6 @@ const handler: Handler = async (event) => {
                 "password": createHash("sha256").update(data.password).digest("hex")
             });
             if (!user) {
-                await mongoClient.close();
                 return {
                     statusCode: 403,
                     body: JSON.stringify({
@@ -155,16 +146,14 @@ const handler: Handler = async (event) => {
                     "sessions": session
                 }
             });
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: JSON.stringify(session)
             }
         }
         if(data.mode==="logout"){
-            const user = await checkSession(mongoClient, session);
+            const user = await checkSession(db, session);
             if (!user) {
-                await mongoClient.close();
                 return {
                     statusCode: 401,
                     body: JSON.stringify({
@@ -184,7 +173,6 @@ const handler: Handler = async (event) => {
                     }
                 }
             });
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: "{}"
@@ -192,9 +180,8 @@ const handler: Handler = async (event) => {
         }
     }
     if (event.httpMethod === 'PATCH') {
-        const user = await checkSession(mongoClient, session);
+        const user = await checkSession(db, session);
         if (!user) {
-            await mongoClient.close();
             return {
                 statusCode: 401,
                 body: JSON.stringify({
@@ -206,7 +193,6 @@ const handler: Handler = async (event) => {
             }
         }
         if (!event.body){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -220,7 +206,6 @@ const handler: Handler = async (event) => {
         const data = JSON.parse(event.body);
         if(data.mode==="update"){
             if(!data.username || !data.email){
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -238,7 +223,6 @@ const handler: Handler = async (event) => {
                 ]
             })
             if (user._id.toString()!==userCheck?._id.toString()) {
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -258,7 +242,6 @@ const handler: Handler = async (event) => {
                     "updated": new Date()
                 }
             });
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: "{}"
@@ -266,7 +249,6 @@ const handler: Handler = async (event) => {
         }
         if(data.mode==="changePassword") {
             if (!data.password) {
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -285,7 +267,6 @@ const handler: Handler = async (event) => {
                     "updated": new Date()
                 }
             });
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: "{}"
@@ -293,7 +274,6 @@ const handler: Handler = async (event) => {
         }
         if(data.mode==="endSession"){
             if(!data.session){
-                await mongoClient.close();
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -313,14 +293,12 @@ const handler: Handler = async (event) => {
                     }
                 }
             });
-            await mongoClient.close();
             return {
                 statusCode: 200,
                 body: "{}"
             }
         }
     }
-    await mongoClient.close();
     return {
         statusCode: 400
     }

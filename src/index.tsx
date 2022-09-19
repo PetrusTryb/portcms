@@ -7,21 +7,29 @@ import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Auth from "./components/auth";
 import "react-quill/dist/quill.bubble.css";
-import {ShieldExclamationIcon} from "@heroicons/react/solid";
+import {ShieldExclamationIcon, CodeIcon, XCircleIcon, InformationCircleIcon} from "@heroicons/react/solid";
 import AccountSettings from "./admin/accountSettings";
-import {XCircleIcon} from "@heroicons/react/outline";
+import {ErrorBoundary} from "react-error-boundary";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
 );
 root.render(
   <React.StrictMode>
+      <ErrorBoundary fallback={<div className="flex flex-col items-center justify-center h-screen">
+          <XCircleIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
+          <h1 className="text-3xl font-bold text-gray-400">Critical error</h1>
+          <p className="text-gray-400">
+              Something went wrong. Please try again later.<br/>If the problem persists, report issue on <a href="https://github.com/PetrusTryb/portcms" className="text-blue-500">GitHub</a>.
+          </p>
+          <a className="text-blue-500 hover:text-blue-600" href="?forceReload=true">Reload</a>
+      </div>}>
     <div className={navigator.onLine?"hidden":"bg-red-800"}>
       <div className="mx-auto max-w-7xl py-3 px-3 sm:px-6 lg:px-8">
         <div className="flex flex-wrap items-center justify-between">
           <div className="flex w-0 flex-1 items-center">
             <span className="flex rounded-lg bg-red-900 p-2">
-              <XCircleIcon className="h-6 w-6 text-white" aria-hidden="true" />
+              <InformationCircleIcon className="h-6 w-6 text-white" aria-hidden="true" />
             </span>
             <p className="ml-3 truncate font-medium text-white">
                                             <span className="md:hidden">
@@ -43,12 +51,29 @@ root.render(
           <Route path="/cms/" >
             <Route path="admin/*" element={<Admin/>} />
             <Route path="login" element={<Auth id="auth" type="auth" data={{"mode":"login", "title":"Log in to PortCMS"}}/>}/>
+            <Route path="register" element={<Auth id="auth" type="auth" data={{"mode":"register", "title":"Register to PortCMS"}}/>}/>
+            <Route path="reset_password" element={<Auth id="auth" type="auth" data={{"mode":"reset", "title":"Account recovery"}}/>}/>
             <Route path="logout" element={<App/>} />
             <Route path="account" element={<AccountSettings/>} />
-            <Route path="*" element={<p className="flex items-center justify-center min-h-screen w-full italic text-info"><ShieldExclamationIcon className="w-5 h-5"/>Invalid Directory!</p>}/>
+            <Route path="*" element={
+                <div className="flex flex-col items-center justify-center h-screen">
+                    <ShieldExclamationIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
+                    <h1 className="text-3xl font-bold text-gray-400">Error 404</h1>
+                    <p className="text-xl text-gray-400">Page not found</p>
+                    <a className="text-blue-500 hover:text-blue-600" href="/">Go to home page</a>
+                </div>
+            }/>
+              <Route path="" element={
+                <div className="flex flex-col items-center justify-center h-screen">
+                    <CodeIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
+                    <h1 className="text-3xl font-bold text-gray-400">PortCMS 2.0</h1>
+                    <p className="text-xl text-gray-400">Visit <a href="https://github.com/PetrusTryb/portcms" className="text-blue-500">GitHub</a> to learn more!</p>
+                </div>
+              }/>
           </Route>
         </Routes>
       </BrowserRouter>
+      </ErrorBoundary>
   </React.StrictMode>
 );
 

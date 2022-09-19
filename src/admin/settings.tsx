@@ -1,10 +1,6 @@
 import LocalizedStringEditor, {localizedString} from "../util/localizedString";
 import React from "react";
-import {
-    BriefcaseIcon,
-    DocumentSearchIcon,
-    DeviceMobileIcon
-} from "@heroicons/react/solid";
+import {BriefcaseIcon, DeviceMobileIcon, IdentificationIcon} from "@heroicons/react/solid";
 import Loader from "../components/loader";
 
 type SettingsState = {
@@ -13,12 +9,12 @@ type SettingsState = {
         logo?: string,
         smallLogo?: string
     },
-    manifest?: {
+    pwa?: {
         name?: string,
-        short_name?: string,
-        display?: string,
+        shortName?: string,
+        displayMode?: string,
     }
-    serviceMode?: boolean,
+    visible?: boolean,
     isLoading: boolean,
 }
 class AdminSettings extends React.Component<{}, SettingsState>{
@@ -64,12 +60,10 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                 "logo": formData.get("logo"),
                 "smallLogo": formData.get("smallLogo")
             },
-            "manifest": {
+            "pwa": {
                 "name": formData.get("PWA_name"),
                 "short_name": formData.get("PWA_short_name"),
                 "display": formData.get("PWA_display"),
-                "start_url": "/",
-                "scope": "/",
                 "icons": [
                     {
                         "src": formData.get("logo"),
@@ -93,7 +87,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                     }
                 ]
             },
-            "serviceMode": this.state.serviceMode
+            "visible": this.state.visible
         };
         fetch(`/api/config/`, {
             method: "POST",
@@ -136,7 +130,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                 <div className="bg-white dark:bg-gray-800 sm:rounded-lg">
                     <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                         <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400 inline">
-                            <DocumentSearchIcon className="mr-2 h-5 w-5 text-accent inline"/>
+                            <IdentificationIcon className="mr-2 h-5 w-5 inline"/>
                             Website metadata
                         </h3>
                     </div>
@@ -221,7 +215,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                         Name
                                     </label>
                                     <div className="mt-1 rounded-md shadow-sm">
-                                        <input id="PWA_name" name="PWA_name" defaultValue={this.state.manifest?.name}
+                                        <input id="PWA_name" name="PWA_name" defaultValue={this.state.pwa?.name}
                                                className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                         <label htmlFor="PWA_name"
                                                className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
@@ -235,7 +229,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                         Short name
                                     </label>
                                     <div className="mt-1 rounded-md shadow-sm">
-                                        <input id="PWA_short_name" name="PWA_short_name" defaultValue={this.state.manifest?.short_name}
+                                        <input id="PWA_short_name" name="PWA_short_name" defaultValue={this.state.pwa?.shortName}
                                                className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                         <label htmlFor="PWA_short_name"
                                                className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
@@ -250,10 +244,10 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                     </label>
                                     <div className="mt-1 rounded-md shadow-sm">
                                         <select id="PWA_display" name="PWA_display" className="form-input w-full sm:text-sm sm:leading-5 dark:bg-gray-800 dark:text-gray-100">
-                                            <option value="browser" selected={this.state.manifest?.display==="browser"}>Browser</option>
-                                            <option value="minimal-ui" selected={this.state.manifest?.display==="minimal-ui"}>Minimal UI</option>
-                                            <option value="standalone" selected={this.state.manifest?.display==="standalone"}>Standalone</option>
-                                            <option value="fullscreen" selected={this.state.manifest?.display==="fullscreen"}>Fullscreen</option>
+                                            <option value="browser" selected={this.state.pwa?.displayMode==="browser"}>Browser</option>
+                                            <option value="minimal-ui" selected={this.state.pwa?.displayMode==="minimal-ui"}>Minimal UI</option>
+                                            <option value="standalone" selected={this.state.pwa?.displayMode==="standalone"}>Standalone</option>
+                                            <option value="fullscreen" selected={this.state.pwa?.displayMode==="fullscreen"}>Fullscreen</option>
                                         </select>
                                         <label htmlFor="PWA_display"
                                             className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
@@ -285,22 +279,22 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                             <div className="mx-auto max-w-7xl py-4 px-4 sm:px-6 lg:flex lg:items-center lg:justify-between lg:py-6 lg:px-8">
                                 <p className="text-xl font-bold tracking-tight text-gray-900 dark:text-gray-300 sm:text-2xl">
                                     <span className="block">Temporarily hide Your website from the public when You are making changes</span>
-                                    <span className="block text-gray-800 dark:text-gray-400">Maintenance mode is currently {this.state.serviceMode?"ON":"OFF"}</span>
+                                    <span className="block text-gray-800 dark:text-gray-400">Maintenance mode is currently {!this.state.visible?"ON":"OFF"}</span>
                                     <span className="block text-gray-700 dark:text-gray-500 text-sm italic">When maintenance mode is switched on, only administrators will be able to see this website. Other users will be informed to try again later.</span>
                                 </p>
                                 <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
-                                    {!this.state.serviceMode &&
+                                    {this.state.visible &&
                                         <div className="inline-flex rounded-md shadow">
-                                            <button type="button" onClick={()=>this.setState({...this.state, serviceMode:true},()=>document.forms[0].requestSubmit())}
+                                            <button type="button" onClick={()=>this.setState({...this.state, visible: false},()=>document.forms[0].requestSubmit())}
                                                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-5 py-3 text-base font-medium text-white hover:bg-indigo-700"
                                             >
                                                 Enable maintenance mode
                                             </button>
                                         </div>
                                     }
-                                    {this.state.serviceMode &&
+                                    {!this.state.visible &&
                                         <div className="inline-flex rounded-md shadow">
-                                            <button type="button" onClick={()=>this.setState({...this.state, serviceMode:false},()=>document.forms[0].requestSubmit())}
+                                            <button type="button" onClick={()=>this.setState({...this.state, visible: true},()=>document.forms[0].requestSubmit())}
                                                 className="inline-flex items-center justify-center rounded-md border border-transparent bg-gray-600 px-5 py-3 text-base font-medium text-white hover:bg-gray-700"
                                             >
                                                 Disable maintenance mode

@@ -11,10 +11,10 @@ class RecentPages extends React.Component<RecentPagesProps, {}> {
         const {pages} = this.props;
         return <section>
             <div className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 overflow-y-visible">
-                <div className="bg-white dark:bg-gray-800 sm:rounded-lg shadow-[#dddddd] dark:shadow-black shadow-sm">
+                <div className="bg-white dark:bg-gray-800 sm:rounded-lg shadow-gray-500 dark:shadow-black shadow-sm">
                     <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                         <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400">
-                            <ClockIcon className="mr-2 w-5 h-5 inline text-accent"/>
+                            <ClockIcon className="mr-2 w-5 h-5 inline"/>
                             Recently edited pages
                         </h3>
                     </div>
@@ -31,7 +31,7 @@ class RecentPages extends React.Component<RecentPagesProps, {}> {
                                                     className="flex flex-col rounded-md w-auto p-2 h-10 bg-gray-300 dark:bg-gray-700 justify-center items-center mr-4">{page.url}
                                                 </div>
                                                 <div className="flex-1 pl-1 mr-8">
-                                                    <div className="font-medium">{page.metadata.title} {!page.visible?<EyeOffIcon className="h-4 w-4 inline text-info dark:text-[#9CA2AF]"/>:""}</div>
+                                                    <div className="font-medium">{page.metadata.title} {!page.visible?<EyeOffIcon className="h-4 w-4 inline text-gray-700 dark:text-gray-400"/>:""}</div>
                                                     <div className="text-gray-600 dark:text-gray-400 text-sm">Last updated: {new Date(page.metadata.updatedAt).toLocaleString()}</div>
                                                 </div>
                                             </div>

@@ -1,4 +1,4 @@
-import {ViewListIcon, ArrowUpIcon, ArrowDownIcon, EyeOffIcon} from "@heroicons/react/solid";
+import {ArrowUpIcon, ArrowDownIcon, EyeOffIcon, DocumentDuplicateIcon} from "@heroicons/react/solid";
 import React from "react";
 
 type AllPagesProps = {
@@ -47,7 +47,7 @@ class AllPages extends React.Component<AllPagesProps>{
                 <div className="bg-white dark:bg-gray-800 sm:rounded-lg shadow-black shadow-sm">
                     <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
                         <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-400">
-                            <ViewListIcon className="mr-2 w-5 h-5 inline text-accent"/>
+                            <DocumentDuplicateIcon className="mr-2 w-5 h-5 inline"/>
                             All pages
                         </h3>
                     </div>
@@ -61,10 +61,10 @@ class AllPages extends React.Component<AllPagesProps>{
                                             <div
                                                 className="select-none cursor-pointer bg-white dark:bg-gray-600 dark:text-gray-300 rounded-md flex flex-1 items-center p-4  transition duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">
                                                 <div
-                                                    className="flex flex-col rounded-md w-auto p-2 h-10 bg-gray-300 dark:bg-gray-700 justify-center items-center mr-4 border-solid border border-opacity-[12%] border-black">{page.url}
+                                                    className="flex flex-col rounded-md w-auto p-2 h-10 bg-gray-300 dark:bg-gray-700 justify-center items-center mr-4 border-solid border border-opacity-20 border-black">{page.url}
                                                 </div>
                                                 <div className="flex-1 pl-1 mr-8">
-                                                    <div className="font-medium">{page.metadata.title} {!page.visible?<EyeOffIcon className="h-4 w-4 inline text-accent dark:text-[#E0E0E0]"/>:""}</div>
+                                                    <div className="font-medium">{page.metadata.title} {!page.visible?<EyeOffIcon className="h-4 w-4 inline text-gray-700 dark:text-gray-400"/>:""}</div>
                                                 </div>
                                                 <div className="flex flex-col text-gray-600 dark:text-gray-400 text-xs">
                                                     {/*Disable move up button when index = 0 and move down button when length of array - index = 1*/}

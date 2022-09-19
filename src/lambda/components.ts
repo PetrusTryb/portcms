@@ -1,11 +1,13 @@
 import {Handler} from '@netlify/functions'
-import {MongoClient, ObjectId} from "mongodb";
+import {Db} from "mongodb";
 import {checkSession, connectToDatabase} from "./mongoHelper";
+import {Component} from "../classes/component";
+import {Page} from "../classes/page";
 
 const handler: Handler = async (event) => {
-    let mongoClient:MongoClient;
+    let db:Db;
     try {
-        mongoClient = await connectToDatabase();
+        db = await connectToDatabase();
     }catch{
         return {
             statusCode: 500,
@@ -17,12 +19,10 @@ const handler: Handler = async (event) => {
             })
         }
     }
-    const db = mongoClient.db("portCMS");
-    const user = await checkSession(mongoClient, event.headers["session"]);
+    const user = await checkSession(db, event.headers["session"]);
     const pageId = event.queryStringParameters?.pageId;
     const componentId = event.queryStringParameters?.componentId;
     if(!user){
-        await mongoClient.close();
         return {
             statusCode: 401,
             body: JSON.stringify({
@@ -35,7 +35,6 @@ const handler: Handler = async (event) => {
     }
     if(event.httpMethod === "GET"){
         if(!componentId || !pageId){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -46,29 +45,25 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const page = await db.collection("pages").findOne({_id: new ObjectId(pageId)});
-        if(!page){
-            await mongoClient.close();
+        const component = await Component.getById(pageId, componentId, db);
+        if(!component){
             return {
                 statusCode: 404,
                 body: JSON.stringify({
                     error: {
                         errorCode: 40401,
-                        errorMessage: "Page not found."
+                        errorMessage: "Component not found."
                     }
                 })
             }
         }
-        const component = page.components.filter((c:any) => c.id.toString() === componentId);
-        await mongoClient.close();
         return {
-            statusCode: component.length > 0 ? 200 : 404,
-            body: JSON.stringify(component.length > 0 ? component[0] : {})
+            statusCode: 200,
+            body: JSON.stringify(component)
         }
     }
     if(event.httpMethod === "PUT"){
         if(!pageId){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -81,7 +76,6 @@ const handler: Handler = async (event) => {
         }
         let newComponent = JSON.parse(event.body||"{}");
         if(!newComponent.type){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -92,21 +86,15 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        newComponent.position = new Date().getTime(); //using timestamp as last position
-        newComponent.id = new ObjectId(); //random object id
-        await db.collection("pages").updateOne({_id: new ObjectId(pageId)}, {
-            $push: {components: newComponent},
-            $set: {"metadata.updatedAt": new Date(), "metadata.updatedBy": user._id}
-        });
-        await mongoClient.close();
+        const component = new Component(newComponent.type, newComponent.data);
+        await component.save(db, pageId, user._id.toString());
         return {
             statusCode: 201,
-            body: JSON.stringify(newComponent)
+            body: "{}"
         }
     }
     if(event.httpMethod === "POST"){
         if(!componentId || !pageId){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -118,19 +106,27 @@ const handler: Handler = async (event) => {
             }
         }
         let component = JSON.parse(event.body||"{}");
-        console.log(component);
-        await db.collection("pages").updateOne({_id: new ObjectId(pageId), "components.id": new ObjectId(componentId)}, {
-            $set: {"components.$.data": component.data, "metadata.updatedAt": new Date(), "metadata.updatedBy": user._id}
-        });
-        await mongoClient.close();
+        let oldComponent = await Component.getById(pageId, componentId, db);
+        if(!oldComponent){
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({
+                        error: {
+                            errorCode: 40401,
+                            errorMessage: "Component not found."
+                        }
+                    })
+                }
+        }
+        oldComponent.data = component.data;
+        await oldComponent.save(db, pageId, user._id.toString());
         return {
             statusCode: 200,
-            body: JSON.stringify(component)
+            body: "{}"
         }
     }
     if(event.httpMethod === "DELETE"){
         if(!componentId || !pageId){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -141,19 +137,25 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        await db.collection("pages").updateOne({_id: new ObjectId(pageId)}, {
-            $pull: {components: {id: new ObjectId(componentId)}},
-            $set: {"metadata.updatedAt": new Date(), "metadata.updatedBy": user._id}
-        });
-        await mongoClient.close();
+        let component = await Component.getById(pageId, componentId, db);
+        if(!component){
+            return {
+                statusCode: 404,
+                body: JSON.stringify({
+                    error: {
+                        errorCode: 40401,
+                        errorMessage: "Component not found."
+                    }
+                })
+            }
+        }
+        await component.delete(db, pageId, user._id.toString());
         return {
-            statusCode: 200,
-            body: "File Written"
+            statusCode: 200
         }
     }
     if(event.httpMethod === "PATCH"){
         if(!componentId || !pageId){
-            await mongoClient.close();
             return {
                 statusCode: 400,
                 body: JSON.stringify({
@@ -165,9 +167,8 @@ const handler: Handler = async (event) => {
             }
         }
         const move = JSON.parse(event.body||"{'move':0}").move;
-        const page = await db.collection("pages").findOne({_id: new ObjectId(pageId)});
+        let page = await Page.getById(pageId, db);
         if(!page){
-            await mongoClient.close();
             return {
                 statusCode: 404,
                 body: JSON.stringify({
@@ -178,11 +179,8 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const prevComponents = [...page.components];
-        const components = page.components.sort((a:any, b:any) => a.position - b.position);
-        const component = components.filter((c:any) => c.id.toString() === componentId);
-        if(!component.length){
-            await mongoClient.close();
+        const component = await Component.getById(pageId, componentId, db);
+        if(!component){
             return {
                 statusCode: 404,
                 body: JSON.stringify({
@@ -193,63 +191,11 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        const componentIndex = components.indexOf(component[0]);
-        if(move === 0){
-            await mongoClient.close();
-            return {
-                statusCode: 204,
-                body: "No action taken."
-            }
-        }
-        if(move === -1){
-            if(componentIndex === 0){
-                await mongoClient.close();
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
-                        error: {
-                            errorCode: 40003,
-                            errorMessage: "Cannot move component up."
-                        }
-                    })
-                }
-            }
-        }
-        if(move === 1){
-            if(componentIndex === components.length - 1){
-                await mongoClient.close();
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({
-                        error: {
-                            errorCode: 40004,
-                            errorMessage: "Cannot move component down."
-                        }
-                    })
-                }
-            }
-        }
-        const nextComponent = components[componentIndex + move];
-        const leftComponentIndex = prevComponents.indexOf(component[0]);
-        const rightComponentIndex = prevComponents.indexOf(nextComponent);
-        const leftQuery = `components.${leftComponentIndex}.position`
-        const rightQuery = `components.${rightComponentIndex}.position`
-        const leftValue = prevComponents[leftComponentIndex].position;
-        const rightValue = prevComponents[rightComponentIndex].position;
-        await db.collection("pages").updateOne({_id: new ObjectId(pageId)}, {
-            $set: {
-                [leftQuery]: rightValue,
-                [rightQuery]: leftValue,
-                "metadata.updatedAt": new Date(),
-                "metadata.updatedBy": user._id
-            }
-        });
-        await mongoClient.close();
+        await component.move(db, pageId, user._id.toString(), move);
         return {
             statusCode: 205
         }
     }
-    await mongoClient.close();
     return {
         statusCode: 400
     }

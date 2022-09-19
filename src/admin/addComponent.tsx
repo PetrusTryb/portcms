@@ -1,4 +1,4 @@
-import {CodeIcon, ShieldExclamationIcon, XIcon} from "@heroicons/react/solid";
+import {CodeIcon, XIcon} from "@heroicons/react/solid";
 import {ComponentSpec, UserAddableComponents} from "../components/component";
 import React from "react";
 import * as icons from "@heroicons/react/solid";
@@ -50,13 +50,6 @@ class AddComponent extends React.Component<addComponentProps, {visible:boolean}>
                             <p className="text-sm font-normal text-gray-500 dark:text-gray-400">
                                 Select a component to add to this page.
                             </p>
-                            {this.props.pageVisible &&
-                                <p className="text-sm font-light text-[#fffd00] mt-2">
-                                    <ShieldExclamationIcon className="h-5 w-5 inline"/> Notice:<br/>This page is now
-                                    visible to everyone. This means that any component added to this page will be
-                                    visible to everyone. It is recommended to hide this page while you are working on it.
-                                </p>
-                            }
                             <ul className="my-4 space-y-3">
                                 {UserAddableComponents.sort((a, b) => a.name.localeCompare(b.name)).map(component => {
                                     return <li key={component.name}>

@@ -3,11 +3,13 @@ import StatusMessages, {StatusMessage} from "./statusMessages";
 import RecentPages from "./recentPages";
 import {Page} from "./pages";
 import Loader from "../components/loader";
+import AdminFooter from "./footer";
 
 type dashboardState = {
     username: string,
     recentPages: Array<Page>,
-    status: Array<StatusMessage>
+    status: Array<StatusMessage>,
+    lastLogin: Date,
 }
 
 class AdminDashboard extends React.Component<{}, dashboardState> {
@@ -17,17 +19,8 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
             username: '',
             recentPages: [],
             status: [],
+            lastLogin: new Date(),
         }
-        fetch('/api/auth',{
-            headers: {
-                'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
-                'cache-control': 'no-cache',
-            },
-        }).then(res => res.json().then(response => {
-            if(!response.error && response.roles?.includes('admin'))
-                data.username = response.username;
-            else if(!document.location.pathname.startsWith('/cms/login'))
-                document.location.href = '/cms/login';
             fetch(`/api/pages?url=*&lang=${preferredLanguage}`,{
                 headers: {
                     'session': localStorage.getItem('session')||sessionStorage.getItem('session')||'',
@@ -35,10 +28,11 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                 }
             }).then(res => res.json().then(response => {
                 if(!response.error) {
+                    data.username = res.headers.get('x-user-name')||'';
+                    data.lastLogin = new Date(res.headers.get('x-last-login')||'');
                     if(response.length > 0) {
                         data.recentPages = response.sort((a: Page, b: Page) => new Date(b.metadata.updatedAt).valueOf() - new Date(a.metadata.updatedAt).valueOf()).slice(0, 3);
                         let homePage = response.find((page: Page) => page.url === '/');
-                        let globalConfig = response.find((page: Page) => page.url === '*');
                         if(homePage?.visible)
                             data.status.push({
                                 type: 'success',
@@ -59,14 +53,14 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                                 link: '/cms/admin/pages/new',
                             })
                         }
-                        if(!globalConfig){
+                        if(!homePage?.metadata.websiteTitle){
                             data.status.push({
                                 type: 'warning',
                                 message: 'Website name is not set. Please set it in the settings.',
                                 link: '/cms/admin/settings',
                             })
                         }
-                        else if(globalConfig.serviceMode){
+                        else if(res.headers.get("x-maintenance-mode") === 'true'){
                             data.status[0]={
                                 type: 'warning',
                                 message: 'Maintenance mode is enabled. Visitors will not be able to see Your website.',
@@ -100,9 +94,6 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                     resolve(data);
                 }
             )
-        })).catch(err => {
-            console.log(err);
-        })
     })
     componentDidMount() {
         this.fetchDashboardData.then(data => {
@@ -129,6 +120,7 @@ class AdminDashboard extends React.Component<{}, dashboardState> {
                 </div>
                 <StatusMessages messages={this.state.status}/>
                 <RecentPages pages={this.state.recentPages}/>
+                <AdminFooter lastLogin={this.state.lastLogin}/>
             </main>
         </div>
     }

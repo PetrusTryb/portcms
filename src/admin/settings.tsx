@@ -32,7 +32,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
             }
         }).then(res => res.json().then(response => {
             if(response.error)
-                window.location.href = '/cms/login'
+                if(response.error.errorCode===40301||response.error.errorCode===40101) window.location.href="/cms/login/"
         })).catch(err => {
                 console.log(err);
             })

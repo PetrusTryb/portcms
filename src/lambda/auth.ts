@@ -32,7 +32,7 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        else{
+        else {
             return {
                 statusCode: 200,
                 body: JSON.stringify(user)

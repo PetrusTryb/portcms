@@ -56,7 +56,7 @@ class AllPages extends React.Component<AllPagesProps>{
                             <ul>
                                 {pages?.length?pages.map((page, index, array) => <div key={page._id} className="bg-white dark:bg-gray-800 shadow sm:rounded-lg">
 
-                                    <a href={`/cms/admin/pages/${page._id}`} key={page._id}>
+                                    <a href={`/cms/admin/pages/${page._id}`} key={page._id} title={"Click to edit page properties"}>
                                         <li className="border-gray-400 flex flex-row mb-2">
                                             <div
                                                 className="select-none cursor-pointer bg-white dark:bg-gray-600 dark:text-gray-300 rounded-md flex flex-1 items-center p-4  transition duration-500 ease-in-out transform hover:-translate-y-1 hover:shadow-lg">

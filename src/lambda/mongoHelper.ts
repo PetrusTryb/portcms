@@ -1,7 +1,5 @@
 import {Db, MongoClient} from "mongodb";
-if (process.env.MONGODB_URL === undefined)
-    throw new Error("MONGODB_URL environment variable is not set. Please set .env file in the root directory of the project that will be read by Environment File Reader.");
-const mongoClient = new MongoClient(process.env.MONGODB_URL, {});
+const mongoClient = new MongoClient(process.env.MONGODB_URL||"mongodb://localhost:27017/", {});
 const connectPromise = mongoClient.connect();
 async function connectToDatabase(){
     return (await connectPromise).db(process.env.MONGODB_DB_NAME||"portCMS");

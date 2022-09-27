@@ -87,7 +87,7 @@ const handler: Handler = async (event) => {
                 if(preferredLanguage){
                     translatedResult = pages.map(p=>{
                         return p.toTranslatedObject(preferredLanguage, localise(globalConfig.metadata.title, preferredLanguage));
-                    });
+                    }); console.log(translatedResult);
                 }
                 return {
                     statusCode: 200,
@@ -122,7 +122,7 @@ const handler: Handler = async (event) => {
                             errorMessage: "This website is currently under maintenance. Please try again later."
                         }
                     })
-                }
+                    ,headers:{"x-user-name":user?.username||"","x-last-login":user?.sessions[user.sessions.length-1].created.toISOString()||"","x-maintenance-mode":true}}
             }
             if(page.visible || user?.roles.includes("admin")){
                 let result = page;
@@ -223,7 +223,7 @@ const handler: Handler = async (event) => {
                         errorCode: 40002,
                         errorMessage: "No page id provided."
                     }
-                })
+                    , hint: page.id1?"PATCH /api/pages/":"PUT /api/pages/"})
             }
         }
         const oldPage = await Page.getById(page.id, db);
@@ -304,7 +304,7 @@ const handler: Handler = async (event) => {
             return {
                 statusCode: 400,
                 body: JSON.stringify({
-                    error: {
+                    hint:data.id?"POST /api/pages/":"", error: {
                         errorCode: 40002,
                         errorMessage: "No page id provided."
                     }
@@ -370,7 +370,7 @@ const handler: Handler = async (event) => {
                 })
             }
         }
-        await instance.delete(db);
+        await instance.delete();
         return {
             statusCode: 200
         }

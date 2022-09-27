@@ -1,5 +1,5 @@
-/* eslint no-restricted-globals: 0*/
-// Establish a cache name
+/* eslint no-restricted-globals: 0 */
+
 const cacheName = 'PortCMS-cache-v1';
 
 self.addEventListener('install', function() {

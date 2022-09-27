@@ -49,7 +49,9 @@ class ComponentConfig extends React.Component<ComponentConfigProps,ComponentConf
         if (componentData) {
             delete componentData["preferredLanguage"];
         }
-        let payload = {
+        const payload = {
+            //TODO: allow adding components at specific position
+            position: new Date().getTime().toString(),
             type: this.props.componentSpec?.name,
             data: componentData
         }

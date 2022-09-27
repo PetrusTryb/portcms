@@ -20,7 +20,7 @@ root.render(
           <XCircleIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
           <h1 className="text-3xl font-bold text-gray-400">Critical error</h1>
           <p className="text-gray-400">
-              Something went wrong. Please try again later.<br/>If the problem persists, report issue on <a href="https://github.com/PetrusTryb/portcms" className="text-blue-500">GitHub</a>.
+              Something went wrong. Please try again later.<br/>If the problem persists, report issue on <a href="https://github.com/PetrusTryb/portcms" target="_blank" rel="noreferrer" className="text-blue-500">GitHub</a>.
           </p>
           <a className="text-blue-500 hover:text-blue-600" href="?forceReload=true">Reload</a>
       </div>}>

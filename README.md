@@ -16,16 +16,7 @@
   - [x] Navigation bar
   - [x] Page
   - [x] Paragraph (advanced editor)
-  - [ ] Card (with image) [*planned for v2.1a*]
-  - [ ] Carousel [*planned for v2.1a*]
-  - [ ] Accordion [*planned for v2.1a*]
-  - [ ] Tabs (with content) [*planned for v2.1a*]
-  - [ ] Counter [*planned for v2.2a*]
-  - [ ] Team [*planned for v2.2a*]
-- [x] Pages management (CRUD)
-- [x] Components management (CRUD)
-- [x] Quick installation
-    - [x] Welcome screen
+  - [ ] Custom components installation [*planned for v2.2a*]
     - [x] Automatic installation
 - [ ] Administration
   - [x] Page list

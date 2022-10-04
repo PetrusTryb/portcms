@@ -50,7 +50,7 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            const page = await Page.getById(id, db);
+            let page = await Page.getById(id, db);
             if (!page) {
                 return {
                     statusCode: 404,
@@ -62,6 +62,8 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
+            delete page.database;
+            delete page.userData;
             return {
                 statusCode: 200,
                 body: JSON.stringify(page)

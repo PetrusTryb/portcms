@@ -1,7 +1,8 @@
 import { Handler } from '@netlify/functions'
 import {Db} from "mongodb";
-import {connectToDatabase, checkSession} from "./mongoHelper";
-import {createHash, randomUUID} from "crypto";
+import {connectToDatabase} from "./mongoHelper";
+import {createHash} from "crypto";
+import {User} from "../classes/user";
 
 const handler: Handler = async (event) => {
     let db:Db;
@@ -20,7 +21,7 @@ const handler: Handler = async (event) => {
     }
     const session = event.headers["session"];
     if (event.httpMethod === 'GET') {
-        const user = await checkSession(db, session);
+        const user = await User.getBySession(db, session);
         if (!user) {
             return {
                 statusCode: 401,
@@ -64,13 +65,8 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            const user = await db.collection('users').findOne({
-                $or: [
-                    {username: data.username},
-                    {email: data.email}
-                ]
-            })
-            if (user) {
+            const newUser = new User();
+            if(!await newUser.changeUsername(db, data.username) || !await newUser.changeEmail(db, data.email)){
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -81,23 +77,9 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            const newUser = {
-                "username": data.username,
-                "password": createHash("sha256").update(data.password).digest("hex"),
-                "email": data.email,
-                "sessions": [{
-                    "id": randomUUID(),
-                    "created": new Date(),
-                    "ip": event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'],
-                    "country": event.headers['x-country'],
-                    "browser": event.headers['sec-ch-ua'],
-                    "os": event.headers['sec-ch-ua-platform']
-                }],
-                "created": new Date(),
-                "updated": new Date(),
-                "roles": await db.collection('users').countDocuments()===0 ? ["admin"] : ["user"],
-            }
-            await db.collection('users').insertOne(newUser);
+            await newUser.changePassword(db, data.password);
+            await newUser.addSession(db, event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || "", event.headers['sec-ch-ua']||event.headers["user-agent"]||"");
+            await newUser.save(db);
             return {
                 statusCode: 201,
                 body: JSON.stringify(newUser.sessions[0])
@@ -115,10 +97,7 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            const user = await db.collection('users').findOne({
-                "email": data.email,
-                "password": createHash("sha256").update(data.password).digest("hex")
-            });
+            const user = await User.getByEmailAndPassword(db, data.email, data.password);
             if (!user) {
                 return {
                     statusCode: 403,
@@ -130,30 +109,16 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            console.log(event.headers)
-            const session = {
-                "id": randomUUID(),
-                "created": new Date(),
-                "ip": event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'],
-                "country": event.headers['x-country'],
-                "browser": event.headers['sec-ch-ua'],
-                "os": event.headers['sec-ch-ua-platform']
-            }
-            await db.collection('users').updateOne({
-                "_id": user._id
-            },{
-                $push: {
-                    "sessions": session
-                }
-            });
+            await user.addSession(db, event.headers['x-nf-client-connection-ip'] || event.headers['client-ip'] || "", event.headers['sec-ch-ua']||event.headers["user-agent"]||"");
+            await user.save(db);
             return {
                 statusCode: 200,
-                body: JSON.stringify(session)
+                body: JSON.stringify(user.sessions[user.sessions.length-1])
             }
         }
         if(data.mode==="logout"){
-            const user = await checkSession(db, session);
-            if (!user) {
+            const user = await User.getBySession(db, session);
+            if (!user||!session) {
                 return {
                     statusCode: 401,
                     body: JSON.stringify({
@@ -164,15 +129,8 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            await db.collection('users').updateOne({
-                "_id": user._id
-            },{
-                $pull: {
-                    "sessions": {
-                        "id":session
-                    }
-                }
-            });
+            await user.removeSession(db, session);
+            await user.save(db);
             return {
                 statusCode: 200,
                 body: "{}"
@@ -180,7 +138,7 @@ const handler: Handler = async (event) => {
         }
     }
     if (event.httpMethod === 'PATCH') {
-        const user = await checkSession(db, session);
+        const user = await User.getBySession(db, session);
         if (!user) {
             return {
                 statusCode: 401,
@@ -216,13 +174,7 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            const userCheck = await db.collection('users').findOne({
-                $or: [
-                    {username: data.username},
-                    {email: data.email}
-                ]
-            })
-            if (user._id.toString()!==userCheck?._id.toString()) {
+            if(!await user.changeUsername(db, data.username) || !await user.changeEmail(db, data.email)){
                 return {
                     statusCode: 400,
                     body: JSON.stringify({
@@ -233,15 +185,7 @@ const handler: Handler = async (event) => {
                     })
                 }
             }
-            await db.collection('users').updateOne({
-                "sessions.id": session
-            },{
-                $set: {
-                    "username": data.username,
-                    "email": data.email,
-                    "updated": new Date()
-                }
-            });
+            await user.save(db);
             return {
                 statusCode: 200,
                 body: "{}"

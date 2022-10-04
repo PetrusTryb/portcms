@@ -2,7 +2,6 @@ import Navbar, {NavbarProps} from "./navbar";
 import Hero, {HeroProps} from './hero';
 import Paragraph, {ParagraphProps} from "./paragraph";
 import Modal, {ModalProps} from "./modal";
-import Auth, {AuthProps} from "./auth";
 import React from "react";
 export type ComponentSpec = {
     name: string;
@@ -74,7 +73,6 @@ export type ComponentProps=
         navbar: NavbarProps,
         paragraph: ParagraphProps,
         modal: ModalProps,
-        auth: AuthProps
     }
 export default function Component(component: ComponentProps[keyof ComponentProps]){
     switch (component.type) {
@@ -86,7 +84,5 @@ export default function Component(component: ComponentProps[keyof ComponentProps
             return <Paragraph {...component}/>;
         case "modal":
             return <Modal {...component} />;
-        case "auth":
-            return <Auth {...component} />;
     }
 };

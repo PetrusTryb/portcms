@@ -7,9 +7,15 @@ import reportWebVitals from './reportWebVitals';
 import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Auth from "./components/auth";
 import "react-quill/dist/quill.bubble.css";
-import {ShieldExclamationIcon, CodeIcon, XCircleIcon, InformationCircleIcon} from "@heroicons/react/solid";
+import {
+    CodeIcon,
+    XCircleIcon,
+    InformationCircleIcon,
+    ExclamationCircleIcon
+} from "@heroicons/react/solid";
 import AccountSettings from "./admin/accountSettings";
 import {ErrorBoundary} from "react-error-boundary";
+import Hero from "./components/hero";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
@@ -20,7 +26,8 @@ root.render(
           <XCircleIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
           <h1 className="text-3xl font-bold text-gray-400">Critical error</h1>
           <p className="text-gray-400">
-              Something went wrong. Please try again later.<br/>If the problem persists, report issue on <a href="https://github.com/PetrusTryb/portcms" target="_blank" rel="noreferrer" className="text-blue-500">GitHub</a>.
+              Something went wrong. Please try again later.<br/>
+              If the problem persists, report issue on <a href="https://github.com/PetrusTryb/portcms" target="_blank" rel="noreferrer" className="text-blue-500">GitHub</a>.
           </p>
           <a className="text-blue-500 hover:text-blue-600" href="?forceReload=true">Reload</a>
       </div>}>
@@ -50,14 +57,28 @@ root.render(
           </Route>
           <Route path="/cms/" >
             <Route path="admin/*" element={<Admin/>} />
-            <Route path="login" element={<Auth id="auth" type="auth" data={{"mode":"login", "title":"Log in to PortCMS"}}/>}/>
-            <Route path="register" element={<Auth id="auth" type="auth" data={{"mode":"register", "title":"Register to PortCMS"}}/>}/>
-            <Route path="reset_password" element={<Auth id="auth" type="auth" data={{"mode":"reset", "title":"Account recovery"}}/>}/>
+            <Route path="install" element={
+                <div>
+                <Hero id="1" type="hero" data={{
+                    title: "Install PortCMS",
+                    subtitle: "PortCMS is not installed.",
+                    image: "https://images.unsplash.com/photo-1596443686812-2f45229eebc3?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1171&q=80",
+                }}/>
+                <Auth data={{
+                title: 'Create Your admin account to get started',
+                mode: 'register',
+                disableLogin: true,
+                disablePasswordReset: true,
+                }}/></div>
+            }/>
+            <Route path="login" element={<Auth data={{"mode":"login", "title":"Log in to PortCMS"}}/>}/>
+            <Route path="register" element={<Auth data={{"mode":"register", "title":"Register to PortCMS"}}/>}/>
+            <Route path="reset_password" element={<Auth data={{"mode":"reset", "title":"Account recovery"}}/>}/>
             <Route path="logout" element={<App/>} />
             <Route path="account" element={<AccountSettings/>} />
             <Route path="*" element={
                 <div className="flex flex-col items-center justify-center h-screen">
-                    <ShieldExclamationIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
+                    <ExclamationCircleIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
                     <h1 className="text-3xl font-bold text-gray-400">Error 404</h1>
                     <p className="text-xl text-gray-400">Page not found</p>
                     <a className="text-blue-500 hover:text-blue-600" href="/">Go to home page</a>
@@ -67,7 +88,7 @@ root.render(
                 <div className="flex flex-col items-center justify-center h-screen">
                     <CodeIcon className="h-20 w-20 text-gray-400" aria-hidden="true" />
                     <h1 className="text-3xl font-bold text-gray-400">PortCMS 2.0</h1>
-                    <p className="text-xl text-gray-400">Visit <a href="https://github.com/PetrusTryb/portcms" className="text-blue-500">GitHub</a> to learn more!</p>
+                    <p className="text-xl text-gray-400">Visit <a href="https://github.com/PetrusTryb/portcms" target="_blank" rel="noreferrer" className="text-blue-500">GitHub</a> to learn more!</p>
                 </div>
               }/>
           </Route>

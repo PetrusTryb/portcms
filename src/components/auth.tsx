@@ -1,8 +1,6 @@
 import { LockClosedIcon, ExclamationIcon } from '@heroicons/react/solid'
 import React from "react";
 export type AuthProps = {
-    id: string,
-    type: "auth",
     data: {
         title: string,
         logo?: string,
@@ -88,7 +86,6 @@ class Auth extends React.Component<AuthProps, AuthState> {
                 window.location.href = "/?forceReload=true";
             }
         })).catch(err => {
-            console.error(err);
             this.setState({authError: "An error occurred. Please try again later."});
         });
     }

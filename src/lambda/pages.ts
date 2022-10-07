@@ -89,7 +89,7 @@ const handler: Handler = async (event) => {
                 if(preferredLanguage){
                     translatedResult = pages.map(p=>{
                         return p.toTranslatedObject(preferredLanguage, localise(globalConfig.metadata.title, preferredLanguage));
-                    }); console.log(translatedResult);
+                    });
                 }
                 return {
                     statusCode: 200,

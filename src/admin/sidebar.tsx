@@ -1,11 +1,10 @@
 import {
     HomeIcon,
-    ViewListIcon,
     PuzzleIcon,
     UsersIcon,
     CogIcon,
     ExternalLinkIcon,
-    LogoutIcon
+    LogoutIcon, ViewGridIcon, InformationCircleIcon, DocumentIcon
 } from '@heroicons/react/solid';
 import React from "react";
 
@@ -26,7 +25,7 @@ class AdminSidebar extends React.Component {
                         <li>
                             <a href="/cms/admin/pages"
                                className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
-                                <ViewListIcon className="w-5 h-5"/>
+                                <ViewGridIcon className="w-5 h-5"/>
                                 <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Pages</span>
                             </a>
                         </li>
@@ -65,6 +64,22 @@ class AdminSidebar extends React.Component {
                                className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
                                 <LogoutIcon className="w-5 h-5"/>
                                 <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Sign out</span>
+                            </a>
+                        </li>
+                        <hr className="border-gray-200 dark:border-gray-700 border-b-2 border-t-2"/>
+                        <li>
+                            <a href="/cms/"
+                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <InformationCircleIcon className="w-5 h-5"/>
+                                <span
+                                    className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">About PortCMS</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://github.com/PetrusTryb/PortCMS/issues" target="_blank" rel="noreferrer"
+                               className="flex items-center p-2 text-base font-normal text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700">
+                                <DocumentIcon className="w-5 h-5"/>
+                                <span className="flex-1 ml-1 whitespace-nowrap overflow-x-hidden">Report an issue</span>
                             </a>
                         </li>
                     </ul>

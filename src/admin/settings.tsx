@@ -152,7 +152,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                             })
                                         }}/>
                                         <label
-                                            className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
+                                            className="hidden 2xl:block text-sm uppercase leading-5 text-gray-700 dark:text-gray-400">
                                             The main name of Your website, recommended length is 65 to 70 characters.
                                             It will be shown on the navigation bar, in search engines and in browser's title bar
                                         </label>
@@ -167,7 +167,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                         <input id="logo" name="logo" defaultValue={this.state.metadata?.logo}
                                                className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                         <label htmlFor="logo"
-                                               className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                               className="hidden 2xl:block text-sm w-1/3 uppercase text-center leading-5 text-gray-700 dark:text-gray-400">
                                         </label>
                                     </div>
                                 </div>
@@ -180,7 +180,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                         <input id="smallLogo" name="smallLogo" defaultValue={this.state.metadata?.smallLogo}
                                                className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                         <label htmlFor="smallLogo"
-                                               className="hidden 2xl:block text-sm w-1/3 uppercase h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                               className="hidden 2xl:block text-sm w-1/3 uppercase text-center leading-5 text-gray-700 dark:text-gray-400">
                                         </label>
                                     </div>
                                 </div>
@@ -218,7 +218,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                         <input id="PWA_name" name="PWA_name" defaultValue={this.state.pwa?.name}
                                                className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                         <label htmlFor="PWA_name"
-                                               className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
+                                               className="hidden 2xl:block text-sm uppercase leading-5 text-gray-700 dark:text-gray-400">
                                             Name of the application that will be shown on the home screen
                                         </label>
                                     </div>
@@ -232,7 +232,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                         <input id="PWA_short_name" name="PWA_short_name" defaultValue={this.state.pwa?.shortName}
                                                className="form-input block w-full dark:bg-gray-800 dark:text-gray-100 transition duration-150 ease-in-out sm:text-sm sm:leading-5"/>
                                         <label htmlFor="PWA_short_name"
-                                               className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
+                                               className="hidden 2xl:block text-sm uppercase leading-5 text-gray-700 dark:text-gray-400">
                                             This field is optional. Slug of the app that will be shown on the home screen
                                         </label>
                                     </div>
@@ -250,7 +250,7 @@ class AdminSettings extends React.Component<{}, SettingsState>{
                                             <option value="fullscreen" selected={this.state.pwa?.displayMode==="fullscreen"}>Fullscreen</option>
                                         </select>
                                         <label htmlFor="PWA_display"
-                                            className="hidden 2xl:block text-sm uppercase h-36px leading-5 text-gray-700 dark:text-gray-400">
+                                            className="hidden 2xl:block text-sm uppercase leading-5 text-gray-700 dark:text-gray-400">
                                             Please note that if "Browser" is selected, the app will not be installed on the user's device.
                                         </label>
                                     </div>

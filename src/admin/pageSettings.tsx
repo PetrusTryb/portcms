@@ -166,7 +166,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                             <button type="button" onClick={this.generateRandomUrl}
                                                 className="inline-flex items-center w-2/12 py-2 rounded-r-md border border-r-0 border-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-400 dark:hover:bg-gray-900 px-3 text-sm text-gray-500">Random</button>
                                             <label htmlFor="url"
-                                                   className="text-sm italic h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                                   className="text-sm italic text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Relative URL to the page.
                                                 Example: <code>/</code>, <code>/about/</code>, <code>/contact/</code>
                                             </label>
@@ -190,7 +190,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                                 })
                                             }}/>
                                             <label
-                                                className="text-sm italic h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                                className="text-sm italic text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Title will be shown in browser's title bar and navbar
                                             </label>
                                         </div>
@@ -212,7 +212,7 @@ class PageSettings extends React.Component<PageSettingsProps, PageSettingsState>
                                                                        }
                                                                    })}/>
                                             <label
-                                                className="text-sm italic h-36px text-center leading-5 text-gray-700 dark:text-gray-400">
+                                                className="text-sm italic text-center leading-5 text-gray-700 dark:text-gray-400">
                                                 Will be shown in search engines, about 150-160 chars
                                             </label>
                                         </div>

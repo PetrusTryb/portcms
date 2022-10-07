@@ -20,7 +20,7 @@
     - [x] Automatic installation
 - [ ] Administration
   - [x] Page list
-    - [ ] Advanced taxonomy (subpages) [*planned for v2.4a*]
+    - [ ] Advanced taxonomy (subpages, nswe moving) [*planned for v2.4a*]
   - [x] Page editor
   - [x] Component editor
   - [x] Settings

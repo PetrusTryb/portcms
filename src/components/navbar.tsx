@@ -116,7 +116,7 @@ class Navbar extends React.Component<NavbarProps, {}> {
                                                         {({ active }) => (
                                                             <a
                                                                 href="/cms/admin"
-                                                                className={this.classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-[#8A2BE2] h-36px')}
+                                                                className={this.classNames(active ? 'bg-gray-100 dark:bg-gray-900' : '', 'block px-4 py-2 text-sm text-[#8A2BE2]')}
                                                             >
                                                                 Admin dashboard
                                                             </a>

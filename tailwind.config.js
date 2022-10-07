@@ -12,14 +12,6 @@ module.exports = {
       },
       opacity: {
         disabled: "0.04"
-      },
-      height: {
-        "36px": "36px",
-      },
-      screens: {
-        "md": "990px",
-        "lg": "1200px",
-        "xl": "1600px",
       }
     },
   },

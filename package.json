@@ -12,7 +12,7 @@
     "@types/react": "^18.0.20",
     "@types/react-dom": "^18.0.6",
     "language-name-map": "^0.3.0",
-    "mongodb": "4.9.1",
+    "mongodb": "4.17.0",
     "mongodb-client-encryption": "^2.2.1",
     "react": "18.2.0",
     "react-dom": "^18.1.0",
